@@ -1,2 +1,2 @@
 # TilingDisplay
-Can display mathematical tilings
+I made this little program to show mathematical subsection tilings
