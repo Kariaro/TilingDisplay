@@ -60,7 +60,7 @@ public class TilingUtil {
 		executorService.execute(task);
 	}
 	
-	public static void execute(Runnable task, int timeout, TimeUnit unit) {
+	public static void executeWithTimeout(Runnable task, int timeout, TimeUnit unit) {
 		executorService.execute(() -> {
 			Thread thread = new Thread(() -> {
 				try {

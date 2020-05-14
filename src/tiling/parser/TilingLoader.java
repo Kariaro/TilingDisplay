@@ -324,8 +324,8 @@ public class TilingLoader {
 								ERROR_INVALID_VALUE
 							);
 						}
-						pattern.default_tile_name = parseString(program);
-						LOGGER.finest("Tiling default_tile_name = " + pattern.default_tile_name);
+						pattern.default_tile = parseString(program);
+						LOGGER.finest("Tiling defaultTile = " + pattern.default_tile);
 						break;
 					}
 					case "starttransform": {
@@ -362,6 +362,8 @@ public class TilingLoader {
 							if(pattern.getTexture() == null) {
 								String val = arr[1].trim();
 								pattern.setTexture(val);
+								
+								// TODO: Check if the url exists and fix it
 								LOGGER.finest("Tiling texturePath = " + val);
 							}
 						}
@@ -517,7 +519,7 @@ public class TilingLoader {
 			LOGGER.finest("  minimumzoom = " + pattern.minimum_zoom);
 			LOGGER.finest("  names       = " + pattern.names);
 			LOGGER.finest("  texturePath = " + pattern.texturePath);
-			LOGGER.finest("  startTile   = " + pattern.default_tile_name);
+			LOGGER.finest("  startTile   = " + pattern.default_tile);
 			LOGGER.finest("  startRotation = " + pattern.startRotation * MathUtils.rad2Deg);
 			LOGGER.finest("");
 		}
@@ -539,9 +541,7 @@ public class TilingLoader {
 				for(int i = 0; i < find.length() - j + 1; i++) {
 					String sub = find.substring(i, i + j);
 					
-					//System.out.println(sub);
 					int index = test.indexOf(sub);
-					//System.out.println(index);
 					if(index != -1) {
 						double cal = j / (test.length() + 1.0);
 						score += cal * cal;

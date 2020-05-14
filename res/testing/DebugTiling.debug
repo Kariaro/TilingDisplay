@@ -6,6 +6,7 @@ Shapes: RHOMB, SQUARE_0, SQUARE_1
 StartShape: RHOMB
 
 Symmetry: 1
+Texture: does not exist
 #Texture: !/sqrb_uv.png
 #Texture: !/outline-rgb.png
 Colors: #ff0, #f0f, #0ff

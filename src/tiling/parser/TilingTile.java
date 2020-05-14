@@ -317,7 +317,7 @@ public class TilingTile {
 	}
 	
 	protected ThreadedMeshData calculate(Matrix4f _m, int depth) {
-		ThreadedMeshData mesh = new ThreadedMeshData(calculate_faces(depth), false);
+		ThreadedMeshData mesh = new ThreadedMeshData(calculate_faces(depth));
 		try {
 			_calculate(mesh, _m, depth);
 		} catch(InterruptedException e) {

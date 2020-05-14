@@ -29,19 +29,15 @@ public class ThreadedTilingMesh implements Mesh {
 	}
 	
 	public void buildObjectTiling(ThreadedMeshData data) {
-		if(data.single) {
-			buildObject(data);
-		} else {
-			data.flip();
-			buildObject(
-				data.faces,
-				data.verts,
-				data.uv,
-				data.colors,
-				data.matVerts,
-				data.matColors
-			);
-		}
+		data.flip();
+		buildObject(
+			data.faces,
+			data.verts,
+			data.uv,
+			data.colors,
+			data.matVerts,
+			data.matColors
+		);
 	}
 	
 	private int vaoId;
@@ -50,53 +46,8 @@ public class ThreadedTilingMesh implements Mesh {
 	private int vboVertex;
 	private int vboUv;
 	private int vboColor;
-	
-	
 	private int vboMatVerts;
 	private int vboMatColors;
-	
-	// TODO: Remove
-	// The interleaved mesh was slower than the one with multiple buffers
-	private int vboObject;
-	
-	private void buildObject(ThreadedMeshData data) {
-		vertexCount = data.faces * 3;
-		data.flip();
-		
-		try {
-			vaoId = GL30.glGenVertexArrays();
-			GL30.glBindVertexArray(vaoId);
-			
-			vboObject = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboObject);
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, data.object, GL15.GL_STATIC_DRAW);
-			// [x, y, z], [u, v], [r, g, b, a], [x, y, z, x, y, z, x, y, z], [r, g, b, a, r, g, b, a, r, g, b, a]
-			// 30 floats is one vertex
-			// 90 floats per triangle
-			// 
-			// verts     :
-			// uv        :
-			// colors    :
-			// matVerts  :
-			// matColors :
-			
-			GL20.glVertexAttribPointer(0, 3, GL11.GL_FLOAT, false, 30 * 4,      0);
-			GL20.glVertexAttribPointer(1, 2, GL11.GL_FLOAT, false, 30 * 4,  3 * 4);
-			GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, 30 * 4,  5 * 4);
-			GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 30 * 4,  9 * 4);
-			GL20.glVertexAttribPointer(4, 3, GL11.GL_FLOAT, false, 30 * 4, 12 * 4);
-			GL20.glVertexAttribPointer(5, 3, GL11.GL_FLOAT, false, 30 * 4, 15 * 4);
-			GL20.glVertexAttribPointer(6, 4, GL11.GL_FLOAT, false, 30 * 4, 18 * 4);
-			GL20.glVertexAttribPointer(7, 4, GL11.GL_FLOAT, false, 30 * 4, 22 * 4);
-			GL20.glVertexAttribPointer(8, 4, GL11.GL_FLOAT, false, 30 * 4, 26 * 4);
-			
-			
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-			GL30.glBindVertexArray(0);
-		} finally {
-			
-		}
-	}
 	
 	@Override
 	public void buildObject(int faces, FloatBuffer verts, FloatBuffer uv, FloatBuffer colors, FloatBuffer matVerts, FloatBuffer matColors) {
@@ -194,7 +145,6 @@ public class ThreadedTilingMesh implements Mesh {
 		GL15.glDeleteBuffers(vboColor);
 		GL15.glDeleteBuffers(vboMatVerts);
 		GL15.glDeleteBuffers(vboMatColors);
-		//GL15.glDeleteBuffers(vboObject);
 		
 		GL30.glBindVertexArray(0);
 		GL30.glDeleteVertexArrays(vaoId);

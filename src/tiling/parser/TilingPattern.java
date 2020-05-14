@@ -1,5 +1,6 @@
 package tiling.parser;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.logging.Logger;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
+import org.lwjgl.opengl.GL11;
 
 import tiling.mesh.Texture;
 import tiling.mesh.ThreadedTilingMesh;
@@ -23,8 +25,8 @@ public class TilingPattern {
 		LOGGER.setLevel(Level.ALL);
 	}
 	
-	protected String default_tile_name;
 	protected ThreadedTilingMesh mesh;
+	protected String default_tile;
 	
 	protected String name;
 	protected String texturePath;
@@ -52,7 +54,7 @@ public class TilingPattern {
 		new Vector4f(0, 0, 1, 1)
 	};
 	
-	protected boolean show_corners = false;
+	protected boolean show_corners;
 	
 	private Texture texture;
 	
@@ -136,7 +138,7 @@ public class TilingPattern {
 	}
 
 	public TilingTile getDefaultTile() {
-		return tiles.getOrDefault(default_tile_name, tiles.get(names.get(0)));
+		return tiles.getOrDefault(default_tile, tiles.get(names.get(0)));
 	}
 	
 	public boolean isGenerating() {
@@ -153,7 +155,6 @@ public class TilingPattern {
 		if(max_depth > maximum_zoom) max_depth = maximum_zoom;
 		
 		TilingUtil.setDebugLevel(LOGGER);
-		
 		if(program.hasErrors()) {
 			System.out.println("Program has errors!");
 			return false;
@@ -173,7 +174,7 @@ public class TilingPattern {
 		if(generating) return;
 		generating = true;
 		
-		TilingUtil.execute(() -> {
+		TilingUtil.executeWithTimeout(() -> {
 			int zoom = depth;
 			TilingTile tilingTile = getDefaultTile();
 			
@@ -214,10 +215,14 @@ public class TilingPattern {
 			TilingUtil.invokeLater(() -> {
 				if(mesh == null) {
 					if(texturePath != null) {
-						if(texturePath.startsWith("!")) { // Inside Jar
-							texture = new Texture(TilingPattern.class.getResourceAsStream(texturePath.substring(1)));
-						} else {
-							texture = new Texture(texturePath);
+						try {
+							if(texturePath.startsWith("!")) { // Inside Jar
+								texture = Texture.loadLocalTexture(texturePath.substring(1), GL11.GL_NEAREST);
+							} else {
+								texture = Texture.loadGlobalTexture(texturePath, GL11.GL_NEAREST);
+							}
+						} catch(IOException e) {
+							e.printStackTrace();
 						}
 					}
 					

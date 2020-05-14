@@ -116,7 +116,7 @@ public class Tiling implements Runnable {
 		tiling.start();
 	}
 	
-	public static final BufferedImage ICON = Texture.loadBufferedImage("/icons/Icon3_48x48.png");
+	public static final BufferedImage ICON = Texture.loadLocalImage("/icons/Icon3_48x48.png");
 	public static final File EXAMPLES_PATH = new File("examples");
 	public static final File LWJGL_PATH = new File("lwjgl");
 	public static final String AUTHOR = "Victor";
@@ -180,7 +180,7 @@ public class Tiling implements Runnable {
 		});
 		
 		glfwMakeContextCurrent(window);
-		{
+		if(ICON != null) {
 			GLFWImage image = GLFWImage.malloc();
 			GLFWImage.Buffer buffer = GLFWImage.malloc(1);
 			image.set(ICON.getWidth(), ICON.getHeight(), Texture.loadBuffer(ICON));
