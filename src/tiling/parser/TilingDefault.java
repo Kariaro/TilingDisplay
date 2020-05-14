@@ -16,17 +16,13 @@ public class TilingDefault {
 		"/patterns/Preset_Danzer's 7-fold.tiling"
 	);
 	
-	private TilingDefault() {
-		
-	}
-
 	public static List<TilingPattern> loadPatterns() {
 		if(!patterns.isEmpty()) return patterns;
 		
 		TilingUtil.execute(() -> {
 			for(String name : DEFAULT_TILINGS) {
 				try {
-					TilingLoader.loadLocalPatternFuture(patterns, name);
+					TilingLoader.loadLocalPattern(patterns, name);
 				} catch(Exception e) {
 					e.printStackTrace();
 				}

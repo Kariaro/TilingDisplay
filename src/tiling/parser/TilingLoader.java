@@ -3,10 +3,6 @@ package tiling.parser;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.joml.Vector3f;
@@ -18,12 +14,7 @@ import tiling.util.MathUtils;
 import tiling.util.TilingUtil;
 
 public class TilingLoader {
-	private static final ExecutorService executor = Executors.newSingleThreadExecutor();
 	private static final Logger LOGGER = Logger.getLogger("TilingLoader");
-	
-	static {
-		LOGGER.setLevel(Level.INFO);
-	}
 	
 	private TilingLoader() {
 		
@@ -50,19 +41,6 @@ public class TilingLoader {
 		}
 		
 		return null;
-	}
-	
-	public static Future<TilingPattern> loadLocalPatternFuture(List<TilingPattern> list, String path) {
-		Future<TilingPattern> future = executor.submit(() -> {
-			TilingPattern pattern = _loadPattern(path, FileUtils.readStream(TilingLoader.class.getResourceAsStream(path)));
-			if(list != null && pattern != null) {
-				list.add(pattern);
-			}
-			
-			return pattern;
-		});
-		
-		return future;
 	}
 	
 

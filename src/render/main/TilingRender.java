@@ -201,6 +201,12 @@ public class TilingRender {
 			}
 		}
 		
+		//for(Vector4f color : colors) {
+		//color.x *= 1.3f;
+		//color.y *= 1.3f;
+		//color.z *= 1.3f;
+		//}
+		
 		float[] v = new float[vertices.size() * 3];
 		float[] c = new float[colors.size() * 4];
 		float[] u = new float[colors.size() * 2];

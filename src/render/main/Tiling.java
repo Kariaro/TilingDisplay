@@ -155,7 +155,7 @@ public class Tiling implements Runnable {
 			return;
 		}
 		
-		//glfwWindowHint(GLFW_SAMPLES, 2);
+		// glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		window = glfwCreateWindow(width, height, "Tiling (Press 'U' Zoom) (Press 'I' UnZoom) (Press 'M' Menu)", NULL, NULL);

@@ -25,7 +25,6 @@ public class Texture {
 		width = bi.getWidth();
 		
 		ByteBuffer buf = loadBuffer(bi, true);
-		
 		textureId = GL11.glGenTextures();
 		GL11.glBindTexture(GL_TEXTURE_2D, textureId);
 		GL11.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);

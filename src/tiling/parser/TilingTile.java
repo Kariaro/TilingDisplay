@@ -10,6 +10,7 @@ import org.joml.Vector4f;
 
 import tiling.util.MathUtils;
 
+// TODO: Simplify fields..
 public class TilingTile {
 	private static final Vector4f[] DEFAULT_COLORS = new Vector4f[] {
 		new Vector4f(1, 1, 0, 1),
@@ -21,12 +22,11 @@ public class TilingTile {
 	public final String name;
 	public final int id;
 	
+	protected Vector4f[][] corners;
 	protected Vector3f[][] vertex;
 	protected Vector2f[][] uv;
 	protected Vector4f[] colors;
 	protected Vector4f color;
-	
-	protected Vector4f[][] corners;
 	
 	protected TilingTile(TilingPattern parent, String name, int id) {
 		this.parent = parent;
@@ -316,19 +316,19 @@ public class TilingTile {
 		return total_faces;
 	}
 	
-	protected ThreadedMeshData calculate(Matrix4f _m, int depth) {
+	protected ThreadedMeshData calculate(Matrix4f _m, int depth) throws InterruptedException {
 		ThreadedMeshData mesh = new ThreadedMeshData(calculate_faces(depth));
 		try {
-			_calculate(mesh, _m, depth);
+			calculate(mesh, _m, depth);
 		} catch(InterruptedException e) {
 			mesh.cleanup();
-			return null;
+			throw new InterruptedException();
 		}
 		
 		return mesh;
 	}
 	
-	private void _calculate(ThreadedMeshData mesh, Matrix4f _m, int depth) throws InterruptedException {
+	private void calculate(ThreadedMeshData mesh, Matrix4f _m, int depth) throws InterruptedException {
 		if(depth < 0 || depth == 0) {
 			if(Thread.interrupted()) throw new InterruptedException();
 			mesh.write(this, _m);
@@ -339,7 +339,6 @@ public class TilingTile {
 		transformationMatrix.scale(parent.scaling);
 		
 		Matrix4f matrix = new Matrix4f(transformationMatrix);
-		
 		for(TilingInstruction i : instructions) {
 			for(TilingOp command : i.commands) {
 				switch(command.type) {
@@ -355,7 +354,7 @@ public class TilingTile {
 				}
 			}
 			
-			i.next_stage._calculate(mesh, matrix, depth - 1);
+			i.next_stage.calculate(mesh, matrix, depth - 1);
 		}
 	}
 	

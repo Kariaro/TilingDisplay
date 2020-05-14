@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.joml.Matrix4f;
@@ -20,10 +19,6 @@ import tiling.util.TilingUtil;
 
 public class TilingPattern {
 	private static final Logger LOGGER = Logger.getLogger("Pattern");
-	
-	static {
-		LOGGER.setLevel(Level.ALL);
-	}
 	
 	protected ThreadedTilingMesh mesh;
 	protected String default_tile;
@@ -67,30 +62,6 @@ public class TilingPattern {
 		colors = new ArrayList<>();
 		names = new ArrayList<>();
 		tiles = new HashMap<>();
-	}
-	
-	protected void build() {
-		LOGGER.finest("Building TilingPattern [" + name + "]");
-		
-		for(int i = 0; i < names.size(); i++) {
-			String key = names.get(i);
-			TilingTile tile = tiles.get(key);
-			
-			if(i < colors.size()) {
-				tile.color = colors.get(i);
-			} else {
-				// TODO: Define default colors
-				//tile.color = new Vector4f(0, 0, 0, 1);
-				
-				tile.color = new Vector4f(
-						((i * 12323) & 0xff) / 255.0f,
-					1 - ((i * 23213) & 0xff) / 255.0f,
-					1, 1
-				);
-			}
-			
-			tile.build();
-		}
 	}
 	
 	public int getMaximumZoom() {
@@ -149,6 +120,31 @@ public class TilingPattern {
 		return mesh_zoom;
 	}
 	
+	protected void build() {
+		TilingUtil.setDebugLevel(LOGGER);
+		LOGGER.finest("Building TilingPattern [" + name + "]");
+		
+		for(int i = 0; i < names.size(); i++) {
+			String key = names.get(i);
+			TilingTile tile = tiles.get(key);
+			
+			if(i < colors.size()) {
+				tile.color = colors.get(i);
+			} else {
+				// TODO: Define default colors
+				//tile.color = new Vector4f(0, 0, 0, 1);
+				
+				tile.color = new Vector4f(
+						((i * 12323) & 0xff) / 255.0f,
+					1 - ((i * 23213) & 0xff) / 255.0f,
+					1, 1
+				);
+			}
+			
+			tile.build();
+		}
+	}
+	
 	private int mesh_zoom;
 	public boolean generate(int max_depth) {
 		if(max_depth < minimum_zoom) max_depth = minimum_zoom;
@@ -188,9 +184,6 @@ public class TilingPattern {
 					return;
 				}
 				LOGGER.finer("Creating geometry: " + faces + " faces");
-			}
-			
-			{
 				LOGGER.finest("Generation Settings");
 				LOGGER.finest("   zoom = " + zoom);
 				LOGGER.finest("   default_tile = " + tilingTile);
@@ -199,18 +192,19 @@ public class TilingPattern {
 			}
 			
 			final long geom_start = System.nanoTime();
-			final ThreadedMeshData data = tilingTile.calculate(
-				new Matrix4f().scale(startScale)
-							  .translate(startTransform)
-							  .rotateZ(startRotation), zoom
-			);
-			//System.out.printf("Total = [%.4f]\n", (data.total / 1000000.0));
-			
-			if(data == null) {
+			final ThreadedMeshData data;
+			try {
+				data = tilingTile.calculate(
+					new Matrix4f().scale(startScale)
+								  .translate(startTransform)
+								  .rotateZ(startRotation), zoom
+				);
+			} catch(InterruptedException e) {
 				generating = false;
 				return;
 			}
 			
+			//System.out.printf("Total = [%.4f]\n", (data.total / 1000000.0));
 			//System.out.printf("Total time invokeLater: [%.4f] ms\n", (System.nanoTime() - geom_start) / 1000000.0);
 			TilingUtil.invokeLater(() -> {
 				if(mesh == null) {
