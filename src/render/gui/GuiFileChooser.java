@@ -70,12 +70,10 @@ public class GuiFileChooser {
 				File last = this.selectedFile;
 				this.selectedFile = fileChooser.getSelectedFile();
 				
-				if(last == null) {
-					if(selectedFile != null) {
-						this.hasSelection = true;
-					}
-				} else {
-					if(selectedFile != null) {
+				if(selectedFile != null) {
+					if(last == null) {
+							this.hasSelection = true;
+					} else {
 						if(!last.getAbsolutePath().equals(selectedFile.getAbsolutePath())) {
 							this.hasSelection = true;
 						}

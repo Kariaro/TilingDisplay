@@ -21,22 +21,18 @@ import org.lwjgl.opengl.GL11;
 import tiling.mesh.Texture;
 
 public class Text {
-	public static final String characters =
+	private static final String characters =
 		"abcdefghijklmnopqrstuvwxyzåäö" +
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
 		"0123456789" +
 		"._- *()[]{}?+/\\.,<>'";
 	
-	// [x=0.0,y=-100.203125,w=67.0,h=141.67871]
-	private final Font font;
 	private BufferedImage attlas;
 	private FontMetrics metrics;
 	private Texture texture;
 	
 	public Text(Font font) {
-		this.font = font;
-		
-		//createFontAttlas();
+		//createFontAttlas(font);
 	}
 	
 	public Text(String name) {
@@ -48,19 +44,17 @@ public class Text {
 			tmp = new Font("Arial", Font.PLAIN, 20);
 			e.printStackTrace();
 		}
-		this.font = tmp;
 		
-		//createFontAttlas();
+		//createFontAttlas(tmp);
 		try {
 			texture = Texture.loadLocalTexture("/font.png", GL11.GL_LINEAR);
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-		//texture = new Texture(Text.class.getResourceAsStream("/font.png"), false);
 	}
 	
 	@SuppressWarnings("unused")
-	private void createFontAttlas() {
+	private void createFontAttlas(Font font) {
 		GraphicsEnvironment env = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		GraphicsDevice device = env.getDefaultScreenDevice();
 		GraphicsConfiguration config = device.getDefaultConfiguration();
@@ -100,6 +94,7 @@ public class Text {
 	}
 	
 	public static Rectangle2D box = new Rectangle2D.Double(0, -100.203125, 67.0, 141.67871);
+	// [x=0.0,y=-100.203125,w=67.0,h=141.67871]
 	public void drawText(String chars, float x, float y, float scale) {
 		int max_width = (int)(1028 / box.getWidth());
 		scale *= (1 / box.getHeight());

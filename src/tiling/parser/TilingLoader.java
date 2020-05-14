@@ -25,6 +25,10 @@ public class TilingLoader {
 		LOGGER.setLevel(Level.INFO);
 	}
 	
+	private TilingLoader() {
+		
+	}
+	
 	public static TilingPattern loadGlobalPattern(String path) {
 		return _loadPattern(path, FileUtils.readFile(path));
 	}
@@ -437,7 +441,6 @@ public class TilingLoader {
 			
 			if(Tiling.DEBUG) {
 				e.printStackTrace(System.out);
-				//TilingUtil.printError(e);
 			}
 			
 		} catch(Exception e) {
@@ -582,7 +585,7 @@ public class TilingLoader {
 		
 		
 		String[] split = arr[1].trim().split("[ ,]+");
-		List<Vector4f> list = new ArrayList<Vector4f>();
+		List<Vector4f> list = new ArrayList<>();
 		for(int i = 0; i < split.length; i++) {
 			String str = split[i].trim();
 			try {

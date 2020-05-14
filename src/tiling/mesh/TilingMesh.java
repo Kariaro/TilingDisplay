@@ -20,7 +20,6 @@ public class TilingMesh implements Mesh {
 		this(name, null);
 	}
 	
-	public boolean active;
 	public TilingMesh(String name, Texture texture) {
 		this.name = name;
 		this.texture = texture;
@@ -32,8 +31,6 @@ public class TilingMesh implements Mesh {
 	private int vboVertex;
 	private int vboUv;
 	private int vboColor;
-	
-	
 	private int vboMatVerts;
 	private int vboMatColors;
 	
@@ -142,15 +139,12 @@ public class TilingMesh implements Mesh {
 				MemoryUtil.memFree(matColorsBuffer);
 			}
 		}
-		
-		active = true;
 	}
 	
 	public void buildObject(int triangles, FloatBuffer verts, FloatBuffer uv, FloatBuffer colors, FloatBuffer matVerts, FloatBuffer matColors) {
 	}
 	
 	public void render() {
-		if(!active) return;
 		if(texture != null) {
 			texture.bind();
 		}

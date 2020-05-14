@@ -7,7 +7,7 @@ import java.util.List;
 import tiling.util.TilingUtil;
 
 public class TilingDefault {
-	private static List<TilingPattern> patterns = new ArrayList<TilingPattern>();
+	private static List<TilingPattern> patterns = new ArrayList<>();
 	public static final List<String> DEFAULT_TILINGS = Arrays.asList(
 		"/patterns/Preset_Ammann_Beenker.tiling",
 		"/patterns/Preset_Penrose.tiling",
@@ -15,6 +15,10 @@ public class TilingDefault {
 		"/patterns/Preset_Tubingen.tiling",
 		"/patterns/Preset_Danzer's 7-fold.tiling"
 	);
+	
+	private TilingDefault() {
+		
+	}
 
 	public static List<TilingPattern> loadPatterns() {
 		if(!patterns.isEmpty()) return patterns;

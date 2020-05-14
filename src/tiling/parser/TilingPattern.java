@@ -64,9 +64,9 @@ public class TilingPattern {
 	
 	TilingPattern(TilingProgram program) {
 		this.program = program;
-		colors = new ArrayList<Vector4f>();
-		names = new ArrayList<String>();
-		tiles = new HashMap<String, TilingTile>();
+		colors = new ArrayList<>();
+		names = new ArrayList<>();
+		tiles = new HashMap<>();
 	}
 	
 	protected void build() {

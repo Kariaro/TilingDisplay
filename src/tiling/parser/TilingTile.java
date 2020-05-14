@@ -42,7 +42,7 @@ public class TilingTile {
 		addInstructionData(data, parts[1].trim());
 	}
 	
-	private List<Vector4f> display_corners = new ArrayList<Vector4f>();
+	private List<Vector4f> display_corners = new ArrayList<>();
 	public void addDisplayData(String data) {
 		if(data.trim().isEmpty()) return;
 		
@@ -84,8 +84,8 @@ public class TilingTile {
 		display_corners.add(corner);
 	}
 	
-	private List<Vector3f> points_vertex = new ArrayList<Vector3f>();
-	private List<Vector2f> points_uv = new ArrayList<Vector2f>();
+	private List<Vector3f> points_vertex = new ArrayList<>();
+	private List<Vector2f> points_uv = new ArrayList<>();
 	public void addVertexData(String data) {
 		if(data.trim().isEmpty()) return;
 		
@@ -105,7 +105,7 @@ public class TilingTile {
 		points_uv.add(new Vector2f(Float.valueOf(arr[0]), Float.valueOf(arr[1])));
 	}
 	
-	private List<TilingInstruction> instructions = new ArrayList<TilingInstruction>();
+	private List<TilingInstruction> instructions = new ArrayList<>();
 	private void addInstructionData(String data, String next_stage) {
 		TilingInstruction part = new TilingInstruction();
 		part.next_stage = parent.tiles.get(next_stage);
@@ -405,7 +405,7 @@ public class TilingTile {
 	
 	class TilingInstruction {
 		public TilingTile next_stage;
-		public List<TilingOp> commands = new ArrayList<TilingOp>();
+		public List<TilingOp> commands = new ArrayList<>();
 		
 		@Override
 		public String toString() {

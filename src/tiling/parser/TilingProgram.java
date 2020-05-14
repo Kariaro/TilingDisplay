@@ -59,7 +59,6 @@ public class TilingProgram {
 	
 	public void addError(int code) {
 		errorCode |= code;
-		System.out.println("Error: " + errorCode);
 	}
 	
 	public int getErrorCode() {

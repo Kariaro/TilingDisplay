@@ -14,9 +14,8 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 public class Texture {
-	public BufferedImage bi;
-	public int textureId;
-	
+	public final BufferedImage bi;
+	public final int textureId;
 	public final int height;
 	public final int width;
 	

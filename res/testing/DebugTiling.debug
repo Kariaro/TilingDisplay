@@ -1,12 +1,11 @@
 # Debug Tiling (Used to develop this filetype)
-# Date: 2020-05-11
+# Date: 2020-05-14
 
 Name: TESTING
 Shapes: RHOMB, SQUARE_0, SQUARE_1
 StartShape: RHOMB
 
 Symmetry: 1
-Texture: does not exist
 #Texture: !/sqrb_uv.png
 #Texture: !/outline-rgb.png
 Colors: #ff0, #f0f, #0ff

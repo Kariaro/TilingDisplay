@@ -25,8 +25,6 @@ import tiling.util.MathUtils;
 import tiling.util.TilingUtil;
 
 public class TilingRender {
-	//private static final Logger LOGGER = Logger.getLogger("TilingRender");
-	
 	public final Tiling parent;
 	private final long window;
 	private int height;
@@ -221,22 +219,6 @@ public class TilingRender {
 			Vector2f uv = uvs.get(i);
 			u[i * 2    ] = uv.x;
 			u[i * 2 + 1] = uv.y;
-			/*
-			if((i % 6) == 0 && i * 12 < u.length) {
-				u[i * 12    ] = 0;
-				u[i * 12 + 1] = 0;
-				u[i * 12 + 2] = 1;
-				u[i * 12 + 3] = 1;
-				u[i * 12 + 4] = 1;
-				u[i * 12 + 5] = 0;
-				
-				u[i * 12 + 6] = 0;
-				u[i * 12 + 7] = 1;
-				u[i * 12 + 8] = 1;
-				u[i * 12 + 9] = 1;
-				u[i * 12 +10] = 0;
-				u[i * 12 +11] = 0;
-			}*/
 		}
 		
 		background.buildObject(v, u, c);
@@ -271,7 +253,7 @@ public class TilingRender {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 		
-		camera.speed_mod = (float)Math.abs(camera.z) * 10;
+		camera.speed_mod = Math.abs(camera.z) * 10;
 		camera.update();
 		
 		camera.rx = 0;

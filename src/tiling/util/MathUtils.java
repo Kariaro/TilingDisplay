@@ -8,6 +8,7 @@ import org.joml.Vector4f;
 public class MathUtils {
 	public static final float deg2Rad = (float)Math.PI / 180.0f;
 	public static final float rad2Deg = (float)(180.0f / Math.PI);
+	
 	public static float cos(double a) {
 		return (float)Math.cos(a);
 	}

@@ -41,7 +41,7 @@ public class ThreadedTilingMesh implements Mesh {
 	}
 	
 	private int vaoId;
-	public int vertexCount;
+	private int vertexCount;
 	
 	private int vboVertex;
 	private int vboUv;
@@ -52,50 +52,43 @@ public class ThreadedTilingMesh implements Mesh {
 	@Override
 	public void buildObject(int faces, FloatBuffer verts, FloatBuffer uv, FloatBuffer colors, FloatBuffer matVerts, FloatBuffer matColors) {
 		vertexCount = faces * 3;
-		try {
-			vaoId = GL30.glGenVertexArrays();
-			GL30.glBindVertexArray(vaoId);
-			
-			vboVertex = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboVertex);
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verts, GL15.GL_STATIC_DRAW);
-			GL20.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0L);
-			
-			vboUv = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboUv);
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, uv, GL15.GL_STATIC_DRAW);
-			GL20.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0L);
-			
-			vboColor = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboColor);
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, colors, GL15.GL_STATIC_DRAW);
-			GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, 0, 0L);
-			
-			vboMatVerts = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboMatVerts);
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, matVerts, GL15.GL_STATIC_DRAW);
-			
-			
-			GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 0);
-			GL20.glVertexAttribPointer(4, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 3);
-			GL20.glVertexAttribPointer(5, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 6);
-			
-			
-			vboMatColors = GL15.glGenBuffers();
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboMatColors);
-			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, matColors, GL15.GL_STATIC_DRAW);
-			
-			
-			GL20.glVertexAttribPointer(6, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 0);
-			GL20.glVertexAttribPointer(7, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 4);
-			GL20.glVertexAttribPointer(8, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 8);
-			
-			
-			GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
-			GL30.glBindVertexArray(0);
-		} finally {
-			
-		}
+		
+		vaoId = GL30.glGenVertexArrays();
+		GL30.glBindVertexArray(vaoId);
+		
+		vboVertex = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboVertex);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, verts, GL15.GL_STATIC_DRAW);
+		GL20.glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0L);
+		
+		vboUv = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboUv);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, uv, GL15.GL_STATIC_DRAW);
+		GL20.glVertexAttribPointer(1, 2, GL_FLOAT, false, 0, 0L);
+		
+		vboColor = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboColor);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, colors, GL15.GL_STATIC_DRAW);
+		GL20.glVertexAttribPointer(2, 4, GL11.GL_FLOAT, false, 0, 0L);
+		
+		vboMatVerts = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboMatVerts);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, matVerts, GL15.GL_STATIC_DRAW);
+		GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 0L);
+		GL20.glVertexAttribPointer(4, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 3L);
+		GL20.glVertexAttribPointer(5, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 6L);
+		
+		
+		vboMatColors = GL15.glGenBuffers();
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, vboMatColors);
+		GL15.glBufferData(GL15.GL_ARRAY_BUFFER, matColors, GL15.GL_STATIC_DRAW);
+		GL20.glVertexAttribPointer(6, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 0L);
+		GL20.glVertexAttribPointer(7, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 4L);
+		GL20.glVertexAttribPointer(8, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 8L);
+		
+		
+		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
+		GL30.glBindVertexArray(0);
 	}
 
 	@Override

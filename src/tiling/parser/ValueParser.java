@@ -7,7 +7,6 @@ public class ValueParser {
 		int rgb, a, r, g, b;
 		String str = value.trim();
 		
-		
 		if(str.startsWith("#")) {
 			str = str.substring(1);
 			rgb = Integer.valueOf(str, 16);
@@ -65,26 +64,4 @@ public class ValueParser {
 			str.length() < 7 ? 1:(a / 255.0f)
 		);
 	}
-	/*
-	public static void main(String[] args) {
-		String[] values = {
-			"0x7700ff",
-			"0x7ff000f",
-			"0xfff",
-			"#fff",
-			"#fff7",
-			"#079",
-			"#007799",
-			"#079a",
-			"#007799aa",
-		};
-		
-		Locale.setDefault(Locale.ENGLISH);
-		
-		for(String s : values) {
-			Vector4f col = parseColor(s);
-			Vector4f test = col.mul(256, new Vector4f());
-			System.out.println("String '" + s + "' parsed " + String.format("(%d, %d, %d, %d)", (int)test.x, (int)test.y, (int)test.z, (int)test.w));
-		}
-	}*/
 }

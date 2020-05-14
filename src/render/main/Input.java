@@ -16,7 +16,7 @@ public class Input extends GLFWKeyCallback {
 			return;
 		}
 		
-		keys[key] = (action != GLFW.GLFW_RELEASE) ? true:false;
+		keys[key] = (action != GLFW.GLFW_RELEASE);
 	}
 	
 	public static boolean pollKey(int key) {

@@ -43,19 +43,19 @@ public class Gui {
 	}
 	
 	
-	public boolean drawToggle(String text, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f fg_normal, Vector4f fg_hover) {
+	private boolean drawToggle(String text, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f fg_normal, Vector4f fg_hover) {
 		return drawToggle(text, text, toggled, small, size, x, y, tx, ty, bg_normal, bg_hover, bg_hover, fg_normal, fg_hover, fg_hover);
 	}
 	
-	public boolean drawToggle(String text, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f bg_selected, Vector4f fg_normal, Vector4f fg_hover, Vector4f fg_selected) {
+	private boolean drawToggle(String text, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f bg_selected, Vector4f fg_normal, Vector4f fg_hover, Vector4f fg_selected) {
 		return drawToggle(text, text, toggled, small, size, x, y, tx, ty, bg_normal, bg_hover, bg_selected, fg_normal, fg_hover, fg_selected);
 	}
 	
-	public boolean drawToggle(String text, String selected, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f fg_normal, Vector4f fg_hover) {
+	private boolean drawToggle(String text, String selected, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f fg_normal, Vector4f fg_hover) {
 		return drawToggle(text, selected, toggled, small, size, x, y, tx, ty, bg_normal, bg_hover, bg_hover, fg_normal, fg_hover, fg_hover);
 	}
 	
-	public boolean drawToggle(String normal, String selected, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f bg_selected, Vector4f fg_normal, Vector4f fg_hover, Vector4f fg_selected) {
+	private boolean drawToggle(String normal, String selected, boolean toggled, boolean small, float size, float x, float y, float tx, float ty, Vector4f bg_normal, Vector4f bg_hover, Vector4f bg_selected, Vector4f fg_normal, Vector4f fg_hover, Vector4f fg_selected) {
 		float width = (float)(Text.box.getWidth() / Text.box.getHeight());
 		float height = size;
 		String text = (toggled ? selected:normal);
@@ -251,7 +251,6 @@ public class Gui {
 				if(pattern_index != i) {
 					if(Mouse.buttons[0] && Mouse.inside(width - a, 32 + i * 32, a, 32)) {
 						Mouse.buttons[0] = false;
-						//parent.loadPattern(i);
 						parent.setPatternIndex(i);
 						parent.resetZoom();
 						
