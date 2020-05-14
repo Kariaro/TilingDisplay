@@ -7,7 +7,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
-import render.math.MathUtils;
+import tiling.util.MathUtils;
 
 public class Camera {
 	private final long window;
@@ -27,9 +27,6 @@ public class Camera {
 	
 	public Camera(long window) {
 		this.window = window;
-		//int[] width = new int[1];
-		//int[] height = new int[1];
-		//glfwGetWindowSize(window, width, height);
 	}
 	
 	private Vector2f mouse = new Vector2f(0, 0);

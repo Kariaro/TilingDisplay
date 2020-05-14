@@ -3,6 +3,8 @@ package render.main;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 
+import tiling.util.TilingUtil;
+
 public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallbackI {
 	public static double mouseX;
 	public static double mouseY;
@@ -19,6 +21,10 @@ public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallb
 	
 	@Override
 	public void invoke(long window, double xpos, double ypos) {
+		/*if(TilingUtil.checkBlockingInput(false)) {
+			return;
+		}*/
+		
 		mouseDx = mouseX - xpos;
 		mouseDy = mouseY - ypos;
 		mouseX = xpos;
@@ -27,6 +33,12 @@ public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallb
 	
 	@Override
 	public void invoke(long window, int button, int action, int mods) {
+		if(action == 1) {
+			if(TilingUtil.checkBlockingInput()) {
+				return;
+			}
+		}
+		
 		buttons[button] = action == 1;
 	}
 

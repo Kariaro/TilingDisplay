@@ -1,0 +1,79 @@
+# Socolar Square-Triangle
+# Date: 2020-05-08
+
+Name: Socolar Square-Triangle
+Symmetry: 6
+Shapes: SQ, TR_0, TR_1
+Colors: #191970, #ffcc66, #ff6600
+Scaling: 0.366025403784
+StartScale: 1
+StartShape: TR_0
+
+MinimumZoom: 0
+MaximumZoom: 5
+
+ShowCorners: true
+
+
+# Vertex Data
+VertexData:
+	:SQ
+		0 0
+		1 0
+		1 1
+		
+		0 0
+		1 1
+		0 1
+		
+	:TR_0
+		0 0
+		1 0
+		0.5 0.866025403784
+		
+	:TR_1
+		0 0
+		1 0
+		0.5 0.866025403784
+
+# Display Data
+DisplayData:
+	:SQ
+		C#f00
+		C#0f0
+		-
+		
+		C#f00
+		-
+		C#f0f
+
+
+# Split Data
+SplitData:
+	:SQ
+		[30]>SQ
+		(1 1)[120]>TR_0
+		[-90]>SQ
+		(---)(1.36602540378 1.36602540378)[120]>TR_0
+		[60]>TR_1
+		[120]>TR_0
+		[60]>TR_1
+		(---)(1.86602540378 2.23205080756)[180]>TR_0
+		(---)(0.86602540378 0.5)[0]>TR_0
+		(---)(2.73205080757 2.73205080757)[30](-1 -1)>SQ
+		(0 0)[-60]>TR_0
+		(0 -1)[90](0 -1)>SQ
+		
+		
+	:TR_0
+		[30]>TR_0
+		(1 0)[-60](-1 0)>SQ
+		(1 0)[30]>TR_1
+		(---)(1.36602540378 2.36602540378)[-150]>TR_0
+		[60]>TR_0
+		(1 0)[120](0 -1)>SQ
+		(---)(2.73205080757)[90]>TR_0
+		
+		
+	:TR_1
+		[30](1 0)[-30]>TR_1

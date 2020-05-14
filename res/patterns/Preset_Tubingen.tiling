@@ -1,0 +1,77 @@
+# Tübingen
+# Date: 2020-05-06
+# Author: Gurra G
+
+Name: Tubingen
+Symmetry: 1
+Shapes: ST, HK_0, HK_1, HD_0, HD_1
+Colors: 0, #0F0, #080, #044, #04F
+Scaling: 0.618033988749894848204586834
+StartScale: 1.618033988749894848204586834
+StartShape: ST
+MinimumZoom: 1
+MaximumZoom: 10
+
+
+# Vertex Data
+VertexData:
+	:ST
+		0 0
+		0 0
+		0 0
+	
+#Thin triangle with -> orientation, see p. 180 of Aperiodic order
+	:HK_0
+		0 0
+		1 0
+		0.80901699437494742410229 0.58778525229247312916870595463907276
+
+#Thin triangle with <- orientation, see p. 180 of Aperiodic order	
+	:HK_1
+		0 0
+		0.80901699437494742410229 0.58778525229247312916870595463907276
+		1 0
+
+#Thick triangle with -> orientation, see p. 180 of Aperiodic order	
+	:HD_0
+		0 0
+		1 0
+		0.5 0.363271264002680442947733378
+
+#Thick triangle with <- orientation, see p. 180 of Aperiodic order	
+	:HD_1
+		0 0
+		0.5 -0.363271264002680442947733378
+		1 0
+
+
+# Split Data
+SplitData:
+	:ST
+		>HK_0
+		[36]>HK_0
+		[36]>HK_1
+		[36]>HK_0
+		[36]>HK_0
+		[36]>HK_1
+		[36]>HK_1
+		[36]>HK_0
+		[36]>HK_1
+		[36]>HK_1	
+	:HK_0
+		>HK_1
+		(1.618033988749894848204586834 0)[144]>HD_0
+		[-36]>HK_0
+	
+	:HK_1
+		>HK_0
+		(1.30901699437494742410228788776 0.9510565162951535721164393331644)[-108]>HD_1
+		>HK_1
+	
+	:HD_0
+		>HK_1
+		(1.618033988749894848204586834 0)[144]>HD_0
+	
+	:HD_1
+		[-36]>HK_0
+		(1.30901699437494742410228788776 0.9510565162951535721164393331644)[-108]>HD_1

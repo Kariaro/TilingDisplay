@@ -1,0 +1,268 @@
+# Documentation File (This shows how to write your own tilings)
+# Date: 2020-05-09
+# Author: Victor A
+
+
+# Tips:
+#  (1)
+#     You can use both spaces and commas as separators, writing
+#     'Shapes: A, B, C' and 'Shapes: A B C' is allowed.
+#
+#  (2)
+#     If the tiling has a unique start and does not have any symmetry
+#     you can create a temporary shape and use 'SplitData' to place
+#     the shapes correctly to make the shape work.
+#
+#  (3)
+#     Whenever you misspell a word or shape the parser will tell you
+#     what you did wrong. It will tell you if you wrote syntax incorrectly
+#     and how you should fix it.
+#
+#  (4)
+#     ...
+#
+#
+#   
+# Commands:
+# [SETTINGS FIELDS]
+#   Name ---------------- [Required]
+#                         This is the name that will show up in the
+#                         software.
+#
+#   Shapes -------------- [Required]
+#                         A list of shape names used later in
+#                         VertexData, TextureData, SplitData and ColorData
+#                         
+#   Symmetry ------------ [Optional] Default = 1
+#                         How many copies should be rendered.
+#                         A value of four would render the tilings four times
+#                         rotated 90 degrees between each fully rendered shape.
+#
+#   Colors -------------- [Optional] Default = (Looping RED, GREEN, BLUE)
+#                         This is the color of each shape you specified
+#
+#   Texture ------------- [Optional] Default = (no texture)
+#                         Absolute path to a texture file used by TextureData.
+#
+#                         A '!' character before the name means that the image
+#                         is loaded from inside the jar file.
+#                         
+#   Scaling ------------- [Optional] Default = 1
+#                         How much the tilings should shrink after each iteration.
+#                         This value needs to be between '0' and '1'.
+#
+#   MinimumZoom --------- [Optional] Default = 0
+#                         This value can't be lower than zero.
+#
+#   MaximumZoom --------- [Optional] Default = 10
+#                         This value can't be lower than one.
+#                         This value can't be greater than 128.
+#
+#   ShowCorners --------- [Optional] Default = false
+#                         Enable if corners should show or not
+#
+#   CornerWeight -------- [Optional] Default = 0.2
+#                         Changes the radius of each corner circle.
+#                         This value can't be less than zero.
+#
+#
+# [START FIELDS]
+#   StartShape ---------- [Optional] Default = First shape defined in 'Shapes'
+#                         What shape the tiling should start from
+#
+#   StartScale ---------- [Optional] Default = 1
+#                         How much the tiling should be scaled before rendering.
+#                         This value needs to be greater than zero.
+#
+#   StartRotation ------- [Optional] Default = 0 degrees
+#                         How much the tilings should be rotated before rendering.
+#
+#   StartTransform ------ [Optional] Default = 0, 0, 0
+#                         How much the tilings should be translated before rendering.
+#
+#
+# [DEBUG FIELDS]
+#   Debug --------------- [Optional] Default = false
+#                         Enable debug fields.
+#
+#   DebugColors --------- [Optional] Default = #F00, #0F0, #00F
+#                         Sets the vertex colors of each corner of the triangles in 'VertexData'.
+#
+#
+# [SHAPE FIELDS]
+#   VertexData ---------- [Required]
+#                         Each shape requires that you specify the vertex data of it.
+#                         Each line will consist of two points (x, y) where three lines
+#                         make a triangle.
+#                         
+#                         Adding more lines creates more triangles but you need to specify
+#                         each three vertices of the triangle with three new lines.
+#                         
+#                         When 'Debug' is true, the first point will have the first color
+#                         of 'DebugColors' = #F00, the second points #0F0 and the third
+#                         point #00F.
+#                         
+#   SplitData ----------- [Required]
+#                         This tells the program how each shape splits up into different
+#                         tiles.
+#
+#   TextureData --------- [Optional]
+#                         If you have set a texture, this will set the texture coordinate
+#                         of each vertex in 'VertexData'.
+#
+#   DisplayData --------- [Optional]
+#                         If 'ShowCorners' is true then you can set the corner colors
+#                         of each triangle.
+#
+
+
+Name: Template
+Shapes: RHOMB, SQUARE_0, SQUARE_1
+Symmetry: 1
+Texture: !/sqrb_uv.png
+Colors: #F00, #0F0, #00F
+Scaling: 0.414213562373095
+MinimumZoom: 0
+MaximumZoom: 7
+
+
+# Start Values
+StartShape: RHOMB
+StartScale: 1
+StartRotation: 0
+StartTransform: 0, 0, 0
+
+# Display Values
+ShowCorners: true
+CornerWeight: 0.3
+
+
+
+# Debug Values
+Debug: true
+DebugColors: #F00, #0F0, #00F
+
+# Vertex Data
+# Required
+# Create the polygons for the different shapes
+VertexData:
+
+# A tile must begin with :<TileName>
+	:RHOMB
+		# The data can either be a 2d point or a 3d point
+		# note that you should not use 3d points because
+		# they will be disabled in the future.
+		
+		0, 0
+		1, 0
+		0.707106781186547, 0.707106781186547
+		
+		1, 0
+		1.707106781186547, 0.707106781186547
+		0.707106781186547, 0.707106781186547
+	
+	:SQUARE_0
+		0, 0
+		1, 0
+		0, 1
+	
+	:SQUARE_1
+		1, 0
+		1, 1
+		0, 1
+
+# DisplayData
+# Optional. Changes colors for each corner of the shape
+# each value should be written C#<color> and if the
+# corner should be empty. Write a single dash '-'.
+DisplayData:
+	:ROHMB
+		C#fff
+		-
+		C#00f
+		
+		-
+		C#ff0
+		-
+
+# TextureData
+# Optional. If you set the texture then you can specify what
+# uv coordinates you want each vertex to use.
+TextureData:
+	:RHOMB
+		0.3754646840148699, 0
+		0.7413090019379927, 0
+		0.6341556820768772, 0.6930693069306931
+	  
+		0.7413090019379927, 0
+		1, 0.6930693069306931
+		0.6341556820768772, 0.6930693069306931
+	
+	:SQUARE_0
+		0, 0
+		0.3754646840148699, 0
+		0, 1
+	
+	:SQUARE_1
+		0.3754646840148699, 0
+		0.3754646840148699, 1
+		0, 1
+
+
+
+# Split Data
+# Required.
+# This defines how to split a shape into smaller shapes.
+# (---)  Is resets the rotation and translation
+# (x y)  Is an translation
+# [deg]  Is an rotation
+# 
+# Each line here should contain the pieces for the next iteration
+# The '>' character means that you place that tile in the current
+# Matrix position
+#
+# :RHOMB                                                       Select the RHOMB tile
+#
+#     >RHOMB                                                   Add a rohmb at position (0 0) with rotation [0]
+#
+#     (0.7071067811865475, 1.7071067811865475)[-90]>SQUARE_1   Translate the position (sqrt(2) / 2, sqrt(2) / 2)
+#                                                              and then rotate by [-90] degrees, and add the
+#                                                              tile SQUARE_1
+#     ......
+#
+# :SQUARE_0                                                    Select the SQUARE_0 tile
+#
+#     >RHOMB                                                   Add a rohmb at position (0 0) with rotation [0]
+#
+#     (0.7071067811865475, 0.7071067811865475)[135]>SQUARE_0   Translate the position (sqrt(2) / 2, sqrt(2) / 2)
+#                                                              and then rotate by [135] degrees, and add the
+#                                                              tile SQUARE_0
+#
+#     [-45]>RHOMB                                              Rotate the current position [-45] degrees and
+#                                                              add the ROHMB tile
+#
+SplitData:
+	:RHOMB
+		>RHOMB
+		(0.7071067811865475, 1.7071067811865475)[-90]>SQUARE_1
+		(---)(3.414213562373095, 0)[90]>SQUARE_1
+		(---)(4.121320343559643, 1.7071067811865475)[180]>RHOMB
+		(---)(1.7071067811865475, 0.7071067811865475)[225]>SQUARE_0
+		(---)(2.414213562373095, 1)[45]>SQUARE_0
+		(---)(2.414213562373095, 0)[90]>RHOMB
+	
+	:SQUARE_0
+		>RHOMB
+		(0.7071067811865475, 0.7071067811865475)[135]>SQUARE_0
+		[-45]>RHOMB
+		(1, -1)[90]>SQUARE_1
+		(0, 1)[45]>SQUARE_0
+	
+	:SQUARE_1
+		(0, 2.414213562373095)[-45]>RHOMB
+		(2.414213562373095, 0)[90]>RHOMB
+		[135](0, -1)>SQUARE_0
+		[45](-1, -1)>SQUARE_1
+		(---)(3.121320343559643, 0.7071067811865475)[135]>SQUARE_1
+
+

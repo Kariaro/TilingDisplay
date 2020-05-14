@@ -1,0 +1,49 @@
+# Wanderer (reflections)
+# Date: 2020-05-09
+
+Name: Wanderer (reflections)
+Symmetry: 1
+Shapes: SQ_0, SQ_1
+Colors: #F00, #FFF
+Scaling: 0.5
+StartShape: SQ_0
+MinimumZoom: 0
+MaximumZoom: 8
+
+StartTransform: -0.5, -0.5
+#Debug: true
+
+# Vertex Data
+VertexData:
+	:SQ_0
+		0 0
+		1 0
+		1 1
+		
+		0 0
+		1 1
+		0 1
+	
+	:SQ_1
+		0 0
+		1 0
+		1 1
+		
+		0 0
+		1 1
+		0 1
+
+
+# Split Data
+SplitData:
+	:SQ_0
+		(1, 1)>SQ_0
+		(0, -1)>SQ_1
+		[90]>SQ_1
+		(2, 1)[180]>SQ_0
+		
+	:SQ_1
+		>SQ_0
+		(0, 1)>SQ_1
+		(2, 0)[90]>SQ_1
+		(0, 1)[180]>SQ_0

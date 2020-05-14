@@ -1,42 +1,37 @@
 package render.gui;
 
 
-import java.awt.Window.Type;
 import java.io.File;
-
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileFilter;
+import java.util.logging.Logger;
 
 import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL11;
 
-import render.generate.TilingLoaderNew;
-import render.generate.TilingPattern;
 import render.main.Input;
 import render.main.Mouse;
-import render.tiling.Tiling;
+import render.main.Tiling;
+import render.main.TilingRender;
+import tiling.parser.TilingLoader;
+import tiling.parser.TilingPattern;
+import tiling.util.TilingUtil;
 
 public class Gui {
-	private final Tiling parent;
-	private final long window;
+	private static final Logger LOGGER = Logger.getLogger("TilingGui");
+	
+	private final TilingRender parent;
 	public int height;
 	public int width;
+	
+	private TilingPattern selectedTiling;
+	private GuiFileChooser fileChooser;
 	private Text text;
 	
-	public Gui(Tiling parent, long window) {
-		this.window = window;
+	public Gui(TilingRender parent) {
 		this.parent = parent;
-		
-		int[] width = new int[1];
-		int[] height = new int[1];
-		GLFW.glfwGetWindowSize(this.window, width, height);
-		this.height = height[0];
-		this.width = width[0];
-		
 		text = new Text("/Consolas.ttf");
+		
+		fileChooser = new GuiFileChooser();
 	}
 	
 	public void drawBox(float x, float y, float w, float h) {
@@ -108,15 +103,27 @@ public class Gui {
 		return pressed;
 	}
 	
+	private boolean autoReload;
 	private boolean pressing_up;
 	private boolean pressing_down;
 	
 	private boolean pressing;
 	private boolean show = true;
+	
+	private boolean flip = false;
+	private long smooth_time = 0;
+	private float smooth_value = 400;
+	
 	public void render() {
+		TilingUtil.setDebugLevel(LOGGER);
+		
 		if(Input.keys[GLFW.GLFW_KEY_M]) {
-			if(!pressing) {
+			long now = System.currentTimeMillis() - smooth_time;
+			if(!pressing && (!flip || now > 200)) {
 				pressing = true;
+				
+				smooth_time = System.currentTimeMillis();
+				flip = true;
 				show = !show;
 			}
 		} else pressing = false;
@@ -125,9 +132,41 @@ public class Gui {
 		GL11.glEnable(GL11.GL_ALPHA);
 		GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		
-		if(show) {
+		int pattern_index = parent.getPatternIndex();
+		
+		boolean changing = false;
+		{
+			long now = System.currentTimeMillis() - smooth_time;
+			
+			if(flip) {
+				long nnow = 400 - now;
+				float index = nnow / 400.0f;
+				
+				if(show) {
+					changing = true;
+					
+					if(now > 400) {
+						smooth_value = 400;
+						flip = false;
+					} else {
+						smooth_value = 400 - (index * index) * nnow;
+					}
+				} else {
+					changing = true;
+					
+					if(now > 400) {
+						smooth_value = 0;
+						flip = false;
+					} else {
+						smooth_value = (index * index) * nnow;
+					}
+				}
+			}
+		}
+		
+		if(show || changing) {
+			float a = smooth_value;
 			int total_patterns = parent.patterns.size();
-			int pattern_index = parent.getPatternIndex();
 			
 			if(pattern_index != -1) {
 				if(Input.keys[GLFW.GLFW_KEY_UP]) {
@@ -135,7 +174,7 @@ public class Gui {
 						pressing_up = true;
 						if(pattern_index > 0) {
 							pattern_index--;
-							parent.loadPattern(pattern_index);
+							parent.setPatternIndex(pattern_index);
 						}
 					}
 				} else pressing_up = false;
@@ -145,27 +184,37 @@ public class Gui {
 						pressing_down = true;
 						if(pattern_index < total_patterns - 1) {
 							pattern_index++;
-							parent.loadPattern(pattern_index);
+							parent.setPatternIndex(pattern_index);
 						}
 					}
 				} else pressing_down = false;
 			}
 			
-			GL11.glColor4f(0, 0, 0, 1);
-			text.drawText("Author Victor Axberg", 2, height - 26, 28);
+			{
+				for(int i = 0; i < 9; i++) {
+					int ix = ((i % 3) - 1) * 1;
+					int iy = ((i / 3) - 1) * 1;
+					
+					if(ix == 0 && iy == 0) continue;
+					GL11.glColor4f(0, 0, 0, 1);
+					text.drawText("Author " + Tiling.AUTHOR, ix + 2, height + 2 - (a * 28 / 400.0f) + iy, 28);
+				}
+	
+				GL11.glColor4f(1, 1, 1, 1);
+				text.drawText("Author " + Tiling.AUTHOR, 2, height + 2 - (a * 28 / 400.0f), 28);
+			}
 			
-			int a = 400;
 			GL11.glColor4f(0, 0, 0, 0.5f);
 			drawBox(width - a, 0, a, height);
 			
 			GL11.glColor4f(1, 1, 1, 1);
 			text.drawText("Default Tilings", width - a + 4, 0, 32);
-			text.drawText("fps " + parent.fps + "/" + parent.TARGET_FPS, width - 130, height - 24, 24);
+			text.drawText("fps " + Tiling.fps + "/" + Tiling.TARGET_FPS, width - a + 270, height - 24, 24);
 			
 			{
 				text.drawText("zoom " + parent.getZoom(), width - a + 4, height - 48, 24);
 				
-				if(drawToggle("[Debug On]", "[Debug Off]", Tiling.DEBUG, true, 24, width - a, height - 24, 4, 0,
+				if(drawToggle("[Debug Off]", "[Debug On]", Tiling.DEBUG, true, 24, width - a, height - 24, 4, 0,
 					new Vector4f(0, 0, 0, 0.3f),
 					new Vector4f(1, 1, 1, 0.1f),
 					new Vector4f(0, 0, 0, 0.4f),
@@ -175,13 +224,39 @@ public class Gui {
 					)) {
 					Tiling.DEBUG = !Tiling.DEBUG;
 				}
+				
+				String[] levels = new String[] {
+					"Minimal",
+					"Partial",
+					"Greater",
+					"Maximum"
+				};
+				
+				if(drawToggle("[" + levels[Tiling.DEBUG_LEVEL] + "]", Tiling.DEBUG, true, 24, width - a + 147, height - 24, 4, 0,
+					new Vector4f(0, 0, 0, 0.3f),
+					new Vector4f(0, 0, 0, 0.3f),
+					new Vector4f(0, 0, 0, 0.4f),
+					new Vector4f(1, 1, 1, 0.4f),
+					new Vector4f(1, 1, 1, 0.4f),
+					new Vector4f(1, 1, 1, 0.8f)
+					)) {
+					
+					if(Tiling.DEBUG) {
+						Tiling.DEBUG_LEVEL++;
+						if(Tiling.DEBUG_LEVEL > 3) Tiling.DEBUG_LEVEL = 0;
+					}
+				}
 			}
 			
 			for(int i = 0; i < parent.patterns.size(); i++) {
 				if(pattern_index != i) {
 					if(Mouse.buttons[0] && Mouse.inside(width - a, 32 + i * 32, a, 32)) {
 						Mouse.buttons[0] = false;
-						parent.loadPattern(i);
+						//parent.loadPattern(i);
+						parent.setPatternIndex(i);
+						parent.resetZoom();
+						
+						LOGGER.finer("Tiling setPatternIndex = " + i);
 					}
 				}
 			}
@@ -215,16 +290,13 @@ public class Gui {
 				new Vector4f(1, 1, 1, 1),
 				new Vector4f(1, 1, 1, 1)
 				)) {
-				openPattern();
+				fileChooser.openDialog();
+				LOGGER.finer("Opening file dialog.");
 			}
 			
-			if(selectedUpdate) {
-				selectedUpdate = false;
-				updateFileSelection();
-			}
 			
-			if(selectedFile != null) {
-				String name = (selectedTiling == null) ? selectedFile.getName():selectedTiling.getName();
+			if(fileChooser.hasSelectedFile()) {
+				String name = (selectedTiling == null) ? fileChooser.getFileName():selectedTiling.getName();
 				
 				if(drawToggle(name, "> " + name + " <", pattern_index == -1, false, 24, width - a, 332, 16, 4,
 					new Vector4f(0, 0, 0, 0.3f),
@@ -232,89 +304,82 @@ public class Gui {
 					new Vector4f(1, 1, 1, 1),
 					new Vector4f(1, 1, 1, 1)
 					)) {
-					parent.setPatternIndex(-1);
+					
+					if(parent.getPatternIndex() != -1) {
+						parent.setPatternIndex(-1);
+						parent.resetZoom();
+						LOGGER.finer("Tiling setPatternIndex = -1");
+					}
 				}
 				
 				if(drawToggle("[Reload]", false, true, 24, width - a, 372, 4, 4,
 					new Vector4f(0, 0, 0, 0.3f),
-					new Vector4f(1, 1, 1, 0.1f),
+					new Vector4f(0.7f, 0.7f, 0.7f, 0.1f),
 					new Vector4f(0, 0, 0, 0.3f),
-					new Vector4f(1, 1, 1, 1),
+					new Vector4f(0.7f, 0.7f, 0.7f, 1),
 					new Vector4f(0.3f, 0.7f, 0.3f, 1),
 					new Vector4f(1, 1, 1, 1)
 					)) {
 					updateFileSelection();
+					LOGGER.fine("Reloading tiling");
+				}
+				
+				if(drawToggle("[AutoReload]", "[AutoReload]", autoReload, true, 24, width - a + 110, 372, 4, 4,
+					new Vector4f(0, 0, 0, 0.3f),
+					new Vector4f(0.7f, 0.7f, 0.7f, 0.1f),
+					new Vector4f(1, 1, 1, 0.1f),
+					new Vector4f(0.7f, 0.7f, 0.7f, 1),
+					new Vector4f(0.3f, 0.7f, 0.3f, 1),
+					new Vector4f(0.3f, 0.7f, 0.3f, 1)
+					)) {
+					autoReload = !autoReload;
+					LOGGER.finer("Tiling autoReload = " + autoReload);
 				}
 			}
+		}
+		
+		if(pattern_index == -1 && autoReload && fileChooser.hasFileChanged()) {
+			updateFileSelection();
+			LOGGER.fine("AutoReloading tiling");
+		}
+		
+		if(fileChooser.hasSelectionChanged()) {
+			updateFileSelection();
+			parent.resetZoom();
+			LOGGER.fine("Loading new file");
 		}
 		
 		GL11.glDisable(GL11.GL_BLEND);
 		GL11.glDisable(GL11.GL_ALPHA);
 	}
 	
+	// TODO: Debug Function (remove)
+	public void setTiling(TilingPattern pattern, File file) {
+		this.fileChooser.setSelectedFile(file);
+		this.selectedTiling = pattern;
+		this.autoReload = true;
+	}
+	
+	// TODO: Double buffer meshes... 
 	private void updateFileSelection() {
-		TilingPattern pattern = TilingLoaderNew.loadGlobalPattern(selectedFile.getAbsolutePath());
+		TilingPattern pattern = TilingLoader.loadGlobalPattern(fileChooser.getAbsolutePath());
 		
 		if(pattern == null) {
 			// Failed to load file
 			selectedTiling = null;
 		} else {
+			if(selectedTiling != null) {
+				selectedTiling.cleanup();
+			}
+			
 			selectedTiling = pattern;
 			parent.customTiling = selectedTiling;
 		}
 		
-		parent.setPatternIndex(-1);
-	}
-	
-	private TilingPattern selectedTiling = null;
-	private boolean selectedUpdate = false;
-	private File selectedFile = null;
-	
-	private volatile boolean openDialog = false;
-	private FileFilter TILING_FILTER = new FileFilter() {
-		public String getDescription() { return "Tiling Files"; }
-		public boolean accept(File f) {
-			String name = f.getName().toLowerCase();
-			return f.isDirectory() || name.endsWith(".example") || name.endsWith(".tiling");
+		if(parent.getPatternIndex() != -1) {
+			parent.resetZoom();
 		}
-	};
-	
-	private void openPattern() {
-		if(openDialog) return;
-		openDialog = true;
-		/*
-		Thread thread = new Thread(() -> {
-			File file = GuiChooser.showOpenDialog();
-			System.out.println("File: " + file);
-			openDialog = false;
-		});
-		thread.setDaemon(true);
-		thread.start();*/
 		
-		SwingUtilities.invokeLater(() -> {
-			final JFileChooser fc = new JFileChooser();
-			fc.setCurrentDirectory(Tiling.customTilingFolder);
-			fc.addChoosableFileFilter(TILING_FILTER);
-			fc.setFileFilter(TILING_FILTER);
-			
-			JFrame frame = new JFrame();
-			frame.setType(Type.UTILITY);
-			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-			frame.setSize(0, 0);
-			frame.setLocation(-1000, -1000);
-			frame.setVisible(true);
-			frame.setAlwaysOnTop(true);
-			
-			int returnVal = fc.showOpenDialog(frame);
-			if(returnVal == JFileChooser.APPROVE_OPTION) {
-				this.selectedFile = fc.getSelectedFile();
-				this.selectedUpdate = true;
-			}
-			
-			frame.setVisible(false);
-			frame.dispose();
-			
-			openDialog = false;
-		});
+		parent.setPatternIndex(-1);
 	}
 }

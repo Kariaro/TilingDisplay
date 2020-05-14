@@ -1,0 +1,55 @@
+# Debug Tiling (Used to develop this filetype)
+# Date: 2020-05-11
+
+Name: TESTING_aaaaa
+Shapes: ST, SQ_0
+StartShape: ST
+
+Symmetry: 1
+Colors: 0, #fff
+Scaling: 1
+
+MinimumZoom: 2
+MaximumZoom: 2
+
+StartTransform: 1, 0
+StartRotation: 75
+
+ShowCorners: true
+CornerWeight: 0.2
+
+Debug: true
+DebugColors: #7f7, #f00, #0f0
+
+# Vertex Data
+VertexData:
+	:SQ_0
+		0, 0
+		1, 0
+		0, 1
+		
+		1, 0
+		1, 1
+		0, 1
+
+
+# Display Data
+DisplayData:
+	:SQ_0
+		C#f00
+		C#0f0
+		C#00f
+		C#0f0
+		C#f00
+		C#00f
+
+
+# Split Data
+SplitData:
+	:ST
+		(-1, 0)>SQ_0
+		
+	:SQ_0
+		>SQ_0
+		(---)(1, 0)[-120](-1, 0)>SQ_0
+		(---)(1, 0)[120](-1, 0)>SQ_0

@@ -1,0 +1,191 @@
+# Template File (This shows how to write your own tilings)
+# Date: 2020-05-07
+# Author: Victor A
+
+# If anything is misstyped the error parser will tell you what
+# happened and type it to the console window.
+#
+
+
+
+# This is the name that will be displayed in the software
+# Required
+Name: Template
+
+# Define what objects you will create
+# Required
+Shapes: RHOMB, SQUARE_0, SQUARE_1
+
+# Define what shape you start from
+# Optional
+StartShape: RHOMB
+
+# Define what symetry the shape has
+# Optional
+Symmetry: 1
+
+# Add a texture to the tiling
+# Optional
+Texture: !/sqrb_uv.png
+
+# Add colors to the different shapes
+# Optional
+Colors: #F00, #0F0, #00F
+
+# Change how the parts shrink when iterating
+# Optional. Default = 1
+Scaling: 0.414213562373095
+
+# Set the minimum iteration
+# Optional. Must not be negative!
+MinimumZoom: 0
+
+# Set the minimum iteration
+# Optional. Can't be lower than MinimumZoom!
+MaximumZoom: 7
+
+
+# Start values
+# These values changes how the tiling is changed
+# globaly
+#
+# Scale the tiling by this much before rendering.
+# This is just a multiplication.
+# Optional. Default = 1
+StartScale: 1
+
+# Rotate the tiling by this much before rendering.
+# Optional. Default = 0
+StartRotation: 0
+
+# Rotate the tiling by this much before rendering.
+# Optional. Default = 0, 0, 0
+StartTransform: 0, 0, 0
+
+
+# Debug values
+# This will show how the shapes are rotated
+# With 
+# Optional. Default = false
+Debug: true
+
+# Debug Vertex Colors
+# If DebugRotation is true than this will
+# add the specified colors to each vertex
+#
+# This is used to make it easer to detect
+# how tiles have been rotated.
+#
+# Optional. Default = #F00, #0F0, #00F
+DebugColors: #F00, #0F0, #00F
+
+# Vertex Data
+# Required
+# Create the polygons for the different shapes
+VertexData:
+
+# A tile must begin with :<TileName>
+	:RHOMB
+		# The data can either be a 2d point or a 3d point
+		# Must be separated by a space ' '.
+		0, 0
+		1, 0
+		0.707106781186547, 0.707106781186547
+		
+		1, 0
+		1.707106781186547, 0.707106781186547
+		0.707106781186547, 0.707106781186547
+	
+	:SQUARE_0
+		0, 0
+		1, 0
+		0, 1
+	
+	:SQUARE_1
+		1, 0
+		1, 1
+		0, 1
+
+
+
+# TextureData
+# Optional. If you set the texture then you can specify what
+# uv coordinates you want each vertex to use.
+TextureData:
+	:RHOMB
+		0.3754646840148699, 0
+		0.7413090019379927, 0
+		0.6341556820768772, 0.6930693069306931
+	  
+		0.7413090019379927, 0
+		1, 0.6930693069306931
+		0.6341556820768772, 0.6930693069306931
+	
+	:SQUARE_0
+		0, 0
+		0.3754646840148699, 0
+		0, 1
+	
+	:SQUARE_1
+		0.3754646840148699, 0
+		0.3754646840148699, 1
+		0, 1
+
+
+
+# Split Data
+# Required.
+# This defines how to split a shape into smaller shapes.
+# (---)  Is resets the rotation and translation
+# (x y)  Is an translation
+# [deg]  Is an rotation
+# 
+# Each line here should contain the pieces for the next iteration
+# The '>' character means that you place that tile in the current
+# Matrix position
+#
+# :RHOMB                                                       Select the RHOMB tile
+#
+#     >RHOMB                                                   Add a rohmb at position (0 0) with rotation [0]
+#
+#     (0.7071067811865475 1.7071067811865475)[-90]>SQUARE_1    Translate the position (sqrt(2) / 2, sqrt(2) / 2)
+#                                                              and then rotate by [-90] degrees, and add the
+#                                                              tile SQUARE_1
+#     ......
+#
+# :SQUARE_0                                                    Select the SQUARE_0 tile
+#
+#     >RHOMB                                                   Add a rohmb at position (0 0) with rotation [0]
+#
+#     (0.7071067811865475 0.7071067811865475)[135]>SQUARE_0    Translate the position (sqrt(2) / 2, sqrt(2) / 2)
+#                                                              and then rotate by [135] degrees, and add the
+#                                                              tile SQUARE_0
+#
+#     [-45]>RHOMB                                              Rotate the current position [-45] degrees and
+#                                                              add the ROHMB tile
+#
+SplitData:
+	:RHOMB
+		>RHOMB
+		(0.7071067811865475, 1.7071067811865475)[-90]>SQUARE_1
+		(---)(3.414213562373095, 0)[90]>SQUARE_1
+		(---)(4.121320343559643, 1.7071067811865475)[180]>RHOMB
+		(---)(1.7071067811865475, 0.7071067811865475)[225]>SQUARE_0
+		(---)(2.414213562373095, 1)[45]>SQUARE_0
+		(---)(2.414213562373095, 0)[90]>RHOMB
+	
+	:SQUARE_0
+		>RHOMB
+		(0.7071067811865475, 0.7071067811865475)[135]>SQUARE_0
+		[-45]>RHOMB
+		(1, -1)[90]>SQUARE_1
+		(0, 1)[45]>SQUARE_0
+	
+	:SQUARE_1
+		(0, 2.414213562373095)[-45]>RHOMB
+		(2.414213562373095, 0)[90]>RHOMB
+		[135](0, -1)>SQUARE_0
+		[45](-1, -1)>SQUARE_1
+		(---)(3.121320343559643, 0.7071067811865475)[135]>SQUARE_1
+
+

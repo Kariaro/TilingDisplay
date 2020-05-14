@@ -17,14 +17,14 @@ import javax.imageio.ImageIO;
 
 import org.lwjgl.opengl.GL11;
 
-import render.mesh.Texture;
+import tiling.mesh.Texture;
 
 public class Text {
 	public static final String characters =
 		"abcdefghijklmnopqrstuvwxyzåäö" +
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
 		"0123456789" +
-		"._- *()[]{}?+/\\.,<>";
+		"._- *()[]{}?+/\\.,<>'";
 	
 	// [x=0.0,y=-100.203125,w=67.0,h=141.67871]
 	private final Font font;
@@ -50,7 +50,7 @@ public class Text {
 		this.font = tmp;
 		
 		//createFontAttlas();
-		texture = new Texture(Text.class.getResourceAsStream("/font.png"));
+		texture = new Texture(Text.class.getResourceAsStream("/font.png"), false);
 	}
 	
 	@SuppressWarnings("unused")
@@ -87,7 +87,7 @@ public class Text {
 		}
 		
 		try {
-			ImageIO.write(attlas, "png", new File("res/testing_stuff.png"));
+			ImageIO.write(attlas, "png", new File("res/font.png"));
 		} catch(Exception e) {
 			e.printStackTrace();
 		}

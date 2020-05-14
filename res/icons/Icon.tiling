@@ -1,0 +1,56 @@
+# Icon (Testing some icon things)
+# Date: 2020-05-11
+
+Name: Icon Testing
+Shapes: ST, SQ_0
+StartShape: ST
+
+Symmetry: 1
+Colors: 0, #fff
+Scaling: 1
+
+MinimumZoom: 2
+MaximumZoom: 2
+
+StartTransform: 1, 0
+StartRotation: 75
+
+ShowCorners: true
+CornerWeight: 0.2
+
+Debug: true
+DebugColors: #ff0, #770, #ff0
+
+# Vertex Data
+VertexData:
+	:SQ_0
+		0, 0
+		1, 0
+		0, 1
+		
+		
+		1, 1
+		1, 0
+		0, 1
+
+
+# Display Data
+DisplayData:
+	:SQ_0
+		-
+		-C#ff0
+		-C#fc5
+		-
+		-C#ff0
+		-C#fc5
+
+
+# Split Data
+SplitData:
+	:ST
+		(-1, 0)>SQ_0
+		
+	:SQ_0
+		>SQ_0
+		(---)(1, 0)[-120](-1, 0)>SQ_0
+		(---)(1, 0)[120](-1, 0)>SQ_0
