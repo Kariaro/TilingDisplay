@@ -100,7 +100,7 @@ public class TilingLoader {
 		TilingProgram program = new TilingProgram(filePath, content);
 		TilingPattern pattern = new TilingPattern(program);
 		
-		HashSet<String> checks = new HashSet<String>();
+		HashSet<String> checks = new HashSet<>();
 		String currentTile = "";
 		int data_type = 0;
 		
@@ -160,6 +160,8 @@ public class TilingLoader {
 								);
 							}
 							continue;
+						default:
+							throw new UnsupportedOperationException();
 					}
 				} else {
 					if(!name.isEmpty()) {
@@ -310,7 +312,7 @@ public class TilingLoader {
 						LOGGER.finest("Tiling defaultTile = " + pattern.default_tile);
 						break;
 					}
-					case "starttransform": {
+					case "starttransform":  {
 						pattern.startTransform = parseVector3f(program);
 						LOGGER.finest("Tiling startTransform = " + String.format("(%.4f, %.4f, %.4f)", pattern.startTransform.x, pattern.startTransform.y, pattern.startTransform.z));
 						break;
@@ -539,7 +541,7 @@ public class TilingLoader {
 		return fst;
 	}
 	
-	private static boolean parseBoolean(TilingProgram program) {
+	private static boolean parseBoolean(TilingProgram program) throws TilingException {
 		errorCheckField(program);
 		
 		String line = program.getCurrentLine();
@@ -555,7 +557,7 @@ public class TilingLoader {
 		);
 	}
 	
-	private static List<Vector4f> parseColors(TilingProgram program) {
+	private static List<Vector4f> parseColors(TilingProgram program) throws TilingException {
 		errorCheckField(program);
 		
 		String line = program.getCurrentLine();
@@ -579,11 +581,11 @@ public class TilingLoader {
 		return list;
 	}
 	
-	private static Vector3f parseVector3f(TilingProgram program) {
+	private static Vector3f parseVector3f(TilingProgram program) throws TilingException {
 		return new Vector3f(_parseVector(program, 3));
 	}
 	
-	private static float[] _parseVector(TilingProgram program, int size) {
+	private static float[] _parseVector(TilingProgram program, int size) throws TilingException {
 		errorCheckField(program);
 		
 		String line = program.getCurrentLine();
@@ -605,7 +607,7 @@ public class TilingLoader {
 		return xyzw;
 	}
 	
-	private static float parseFloat(TilingProgram program) {
+	private static float parseFloat(TilingProgram program) throws TilingException {
 		errorCheckField(program);
 		
 		String line = program.getCurrentLine();
@@ -621,7 +623,7 @@ public class TilingLoader {
 		}
 	}
 	
-	private static int parseInt(TilingProgram program) {
+	private static int parseInt(TilingProgram program) throws TilingException {
 		errorCheckField(program);
 		
 		String line = program.getCurrentLine();
@@ -637,7 +639,7 @@ public class TilingLoader {
 		}
 	}
 	
-	private static List<String> parseStrings(TilingProgram program) {
+	private static List<String> parseStrings(TilingProgram program) throws TilingException {
 		errorCheckField(program);
 		
 		String line = program.getCurrentLine();
@@ -652,7 +654,7 @@ public class TilingLoader {
 		return list;
 	}
 	
-	private static String parseString(TilingProgram program) {
+	private static String parseString(TilingProgram program) throws TilingException {
 		errorCheckField(program);
 		
 		String line = program.getCurrentLine();
@@ -661,11 +663,11 @@ public class TilingLoader {
 		return arr[1].trim();
 	}
 	
-	private static void errorCheckField(TilingProgram program) {
+	private static void errorCheckField(TilingProgram program) throws TilingException {
 		errorCheckField(program, true);
 	}
 	
-	private static void errorCheckField(TilingProgram program, boolean check_empty) {
+	private static void errorCheckField(TilingProgram program, boolean check_empty) throws TilingException {
 		String line = program.getCurrentLine();
 		if(line.indexOf(' ') == 0) {
 			throw new TilingException(program,

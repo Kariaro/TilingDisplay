@@ -2,7 +2,7 @@ package tiling.parser;
 
 import java.util.logging.Logger;
 
-public class TilingException extends Error {
+public class TilingException extends Exception {
 	private static final Logger LOGGER = Logger.getLogger("TilingLoader");
 	
 	private static final long serialVersionUID = 1L;

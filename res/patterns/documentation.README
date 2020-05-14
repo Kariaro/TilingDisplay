@@ -213,7 +213,7 @@ TextureData:
 # Split Data
 # Required.
 # This defines how to split a shape into smaller shapes.
-# (---)  Is resets the rotation and translation
+# (---)  Resets the rotation and translation
 # (x y)  Is an translation
 # [deg]  Is an rotation
 # 

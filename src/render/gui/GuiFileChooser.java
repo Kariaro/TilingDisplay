@@ -10,7 +10,6 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
 import render.main.Tiling;
-import tiling.util.TilingUtil;
 
 public class GuiFileChooser {
 	public static JFileChooser fileChooser;
@@ -21,8 +20,8 @@ public class GuiFileChooser {
 		public boolean accept(File f) {
 			String name = f.getName().toLowerCase();
 			
-			if(Tiling.DEBUG) {
-				if(name.endsWith(".debug")) return true;
+			if(Tiling.DEBUG && name.endsWith(".debug")) {
+				return true;
 			}
 			
 			return f.isDirectory() || name.endsWith(".example") || name.endsWith(".tiling");
@@ -30,7 +29,7 @@ public class GuiFileChooser {
 	};
 	
 	public GuiFileChooser() {
-		TilingUtil.execute(() -> {
+		SwingUtilities.invokeLater(() -> {
 			UIManager.put("FileChooser.readOnly", Boolean.TRUE);
 			
 			fileChooser = new JFileChooser();
@@ -70,17 +69,11 @@ public class GuiFileChooser {
 				File last = this.selectedFile;
 				this.selectedFile = fileChooser.getSelectedFile();
 				
-				if(selectedFile != null) {
-					if(last == null) {
-							this.hasSelection = true;
-					} else {
-						if(!last.getAbsolutePath().equals(selectedFile.getAbsolutePath())) {
-							this.hasSelection = true;
-						}
-					}
+				if(last == null || !last.getAbsolutePath().equals(selectedFile.getAbsolutePath())) {
+					hasSelection = true;
 				}
 				
-				this.lastModified = selectedFile.lastModified();
+				lastModified = selectedFile.lastModified();
 			}
 			
 			parentFrame.setVisible(false);
@@ -89,9 +82,9 @@ public class GuiFileChooser {
 	}
 	
 	public void setSelectedFile(File file) {
-		this.selectedFile = file;
+		selectedFile = file;
 		if(file != null) {
-			this.lastModified = file.lastModified();
+			lastModified = file.lastModified();
 		}
 	}
 	

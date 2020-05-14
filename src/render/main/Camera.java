@@ -46,6 +46,8 @@ public class Camera {
 	public void update() {
 		updateMouse();
 		
+		// Suggestion:
+		// Shift / Control for zoom
 		boolean forwards = Input.keys[GLFW_KEY_W];
 		boolean right = Input.keys[GLFW_KEY_A];
 		boolean left = Input.keys[GLFW_KEY_D];

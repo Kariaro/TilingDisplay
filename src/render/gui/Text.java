@@ -24,7 +24,7 @@ public class Text {
 		"abcdefghijklmnopqrstuvwxyzåäö" +
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
 		"0123456789" +
-		"._- *()[]{}?+/\\.,<>'";
+		"._- *()[]{}?+/\\.,<>':";
 	
 	private static final int ATTLAS_HEIGHT = 1024;
 	private static final int ATTLAS_WIDTH = 1024;

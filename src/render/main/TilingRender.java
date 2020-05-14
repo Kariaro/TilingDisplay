@@ -119,9 +119,9 @@ public class TilingRender {
 		background = new TilingMesh("background_mesh");
 		Random random = new Random(0);
 		
-		List<Vector4f> colors = new ArrayList<Vector4f>();
-		List<Vector3f> vertices = new ArrayList<Vector3f>();
-		List<Vector2f> uvs = new ArrayList<Vector2f>();
+		List<Vector4f> colors = new ArrayList<>();
+		List<Vector3f> vertices = new ArrayList<>();
+		List<Vector2f> uvs = new ArrayList<>();
 		
 		for(int i = 0; i < 10 * 4 * 4; i++) {
 			Vector4f color = new Vector4f(random.nextFloat(), random.nextFloat(), random.nextFloat(), 1);
@@ -232,6 +232,10 @@ public class TilingRender {
 	
 	private boolean pattern_changed = true;
 	private int pattern_index = 0;
+	
+	public int getFps() {
+		return parent.getFps();
+	}
 	
 	public int getPatternIndex() {
 		return pattern_index;

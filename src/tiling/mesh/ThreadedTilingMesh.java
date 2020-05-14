@@ -25,7 +25,7 @@ public class ThreadedTilingMesh implements Mesh {
 	}
 	
 	public void buildObject(float[] v, float[] u, float[] c) {
-		
+		throw new UnsupportedOperationException();
 	}
 	
 	public void buildObjectTiling(ThreadedMeshData data) {

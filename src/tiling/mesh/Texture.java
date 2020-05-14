@@ -67,7 +67,7 @@ public class Texture {
 	public static BufferedImage loadLocalImage(String path) {
 		try {
 			return ImageIO.read(Texture.class.getResourceAsStream(path));
-		} catch(Exception e) {
+		} catch(IOException e) {
 			e.printStackTrace();
 		}
 		return null;

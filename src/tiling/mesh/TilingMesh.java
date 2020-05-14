@@ -100,9 +100,9 @@ public class TilingMesh implements Mesh {
 			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, matVertsBuffer, GL15.GL_STATIC_DRAW);
 			
 			
-			GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 0);
-			GL20.glVertexAttribPointer(4, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 3);
-			GL20.glVertexAttribPointer(5, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 6);
+			GL20.glVertexAttribPointer(3, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 0L);
+			GL20.glVertexAttribPointer(4, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 3L);
+			GL20.glVertexAttribPointer(5, 3, GL11.GL_FLOAT, false, 9 * 4, 4 * 6L);
 			
 			
 			vboMatColors = GL15.glGenBuffers();
@@ -110,9 +110,9 @@ public class TilingMesh implements Mesh {
 			GL15.glBufferData(GL15.GL_ARRAY_BUFFER, matColorsBuffer, GL15.GL_STATIC_DRAW);
 			
 			
-			GL20.glVertexAttribPointer(6, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 0);
-			GL20.glVertexAttribPointer(7, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 4);
-			GL20.glVertexAttribPointer(8, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 8);
+			GL20.glVertexAttribPointer(6, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 0L);
+			GL20.glVertexAttribPointer(7, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 4L);
+			GL20.glVertexAttribPointer(8, 4, GL11.GL_FLOAT, false, 12 * 4, 4 * 8L);
 			
 			
 			
@@ -142,6 +142,12 @@ public class TilingMesh implements Mesh {
 	}
 	
 	public void buildObject(int triangles, FloatBuffer verts, FloatBuffer uv, FloatBuffer colors, FloatBuffer matVerts, FloatBuffer matColors) {
+		throw new UnsupportedOperationException();
+	}
+	
+	@Override
+	public void buildObjectTiling(ThreadedMeshData data) {
+		throw new UnsupportedOperationException();
 	}
 	
 	public void render() {
@@ -193,11 +199,5 @@ public class TilingMesh implements Mesh {
 		
 		GL15.glDeleteBuffers(vboMatVerts);
 		GL15.glDeleteBuffers(vboMatColors);
-	}
-
-	@Override
-	public void buildObjectTiling(ThreadedMeshData data) {
-		// TODO Auto-generated method stub
-		
 	}
 }

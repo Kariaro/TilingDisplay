@@ -208,7 +208,7 @@ public class Gui {
 			
 			GL11.glColor4f(1, 1, 1, 1);
 			text.drawText("Default Tilings", width - a + 4, 0, 32);
-			text.drawText("fps " + Tiling.fps + "/" + Tiling.TARGET_FPS, width - a + 270, height - 24, 24);
+			text.drawText("fps " + parent.getFps() + "/" + Tiling.TARGET_FPS, width - a + 270, height - 24, 24);
 			
 			{
 				text.drawText("zoom " + parent.getZoom(), width - a + 4, height - 48, 24);

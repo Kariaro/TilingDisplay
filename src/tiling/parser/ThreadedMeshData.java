@@ -10,12 +10,13 @@ import tiling.util.MathUtils;
 
 public class ThreadedMeshData {
 	public final int faces;
-	public FloatBuffer verts;
-	public FloatBuffer uv;
-	public FloatBuffer colors;
-	public FloatBuffer matVerts;
-	public FloatBuffer matColors;
+	public final FloatBuffer verts;
+	public final FloatBuffer uv;
+	public final FloatBuffer colors;
+	public final FloatBuffer matVerts;
+	public final FloatBuffer matColors;
 	
+	private boolean cleaned;
 	public ThreadedMeshData(int faces) {
 		this.faces = faces;
 		verts = MemoryUtil.memAllocFloat(faces * 9);
@@ -25,13 +26,6 @@ public class ThreadedMeshData {
 		matColors = MemoryUtil.memAllocFloat(faces * 9 * 4);
 	}
 	
-	@Override
-	protected void finalize() throws Throwable {
-		super.finalize();
-		cleanup();
-	}
-	
-	public long total = 0;
 	public void write(TilingTile tile, Matrix4f _m) {
 		Matrix4f matrix = new Matrix4f();
 		_m.get(matrix);
@@ -52,6 +46,7 @@ public class ThreadedMeshData {
 	}
 	
 	public void flip() {
+		if(cleaned) return;
 		verts.flip();
 		uv.flip();
 		colors.flip();
@@ -60,26 +55,13 @@ public class ThreadedMeshData {
 	}
 	
 	public void cleanup() {
-		if(verts != null) {
-			MemoryUtil.memFree(verts);
-			verts = null;
-		}
-		if(uv != null) {
-			MemoryUtil.memFree(uv);
-			uv = null;
-		}
-		if(colors != null) {
-			MemoryUtil.memFree(colors);
-			colors = null;
-		}
-		if(matVerts != null) {
-			MemoryUtil.memFree(matVerts);
-			matVerts = null;
-		}
-		if(matColors != null) {
-			MemoryUtil.memFree(matColors);
-			matColors = null;
-		}
+		if(cleaned) return;
+		cleaned = true;
+		MemoryUtil.memFree(verts);
+		MemoryUtil.memFree(uv);
+		MemoryUtil.memFree(colors);
+		MemoryUtil.memFree(matVerts);
+		MemoryUtil.memFree(matColors);
 	}
 	
 	private Vector3f[] translate(Matrix4f _m, Vector3f[] vectors) {

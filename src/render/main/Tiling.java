@@ -107,6 +107,7 @@ public class Tiling implements Runnable {
 		}
 		
 		try {
+			// TODO: Only load necessary looks
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -119,17 +120,14 @@ public class Tiling implements Runnable {
 	public static final BufferedImage ICON = Texture.loadLocalImage("/icons/Icon3_48x48.png");
 	public static final File EXAMPLES_PATH = new File("examples");
 	public static final File LWJGL_PATH = new File("lwjgl");
-	public static final String AUTHOR = "Victor";
+	public static final String AUTHOR = "https://github.com/Kariaro";
 	public static final String VERSION = "1.0.1";
+	public static final int TARGET_FPS = 120;
 	
 	public static File customTilingFolder;
-	
 	public static boolean DEBUG = false;
 	public static int DEBUG_LEVEL = 0;
-	
-
-	public static final int TARGET_FPS = 120;
-	public static int fps = 0;
+	private int fps = 0;
 	
 	private int height = (int)(540 * 1.5);
 	private int width = (int)(960);
@@ -160,7 +158,7 @@ public class Tiling implements Runnable {
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		window = glfwCreateWindow(width, height, "Tiling (Press 'U' Zoom) (Press 'I' UnZoom) (Press 'M' Menu)", NULL, NULL);
 		if(window == NULL) {
-			return;
+			throw new NullPointerException("Failed to initialize the window");
 		}
 		
 		GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
@@ -200,6 +198,10 @@ public class Tiling implements Runnable {
 	
 	public int getHeight() {
 		return height;
+	}
+	
+	public int getFps() {
+		return fps;
 	}
 	
 	public void run() {
@@ -250,7 +252,7 @@ public class Tiling implements Runnable {
 			long now = System.currentTimeMillis();
 			if(now - last > 1000) {
 				//System.out.println("fps: " + frames + "/" + TARGET_FPS);
-				Tiling.fps = frames;
+				fps = frames;
 				
 				frames = 0;
 				last += 1000;
