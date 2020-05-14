@@ -434,7 +434,8 @@ public class TilingLoader {
 			e.printStackTrace();
 			
 			if(Tiling.DEBUG) {
-				TilingUtil.printError(e);
+				e.printStackTrace(System.out);
+				//TilingUtil.printError(e);
 			}
 			
 		} catch(Exception e) {

@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.Locale;
 import java.util.logging.LogManager;
 
@@ -25,6 +26,13 @@ import tiling.util.TilingUtil;
 public class Tiling implements Runnable {
 	static {
 		try {
+			// The ConsoleHandler is initialized once inside LogManager.RootLogger
+			// if we change Sytem.err to System.out when the ConsoleHandler is created
+			// we change it's output stream to System.out.
+			
+			PrintStream error_stream = System.err;
+			System.setErr(System.out);
+			
 			Locale.setDefault(Locale.ENGLISH);
 			LogManager.getLogManager().readConfiguration(new ByteArrayInputStream((
 				"handlers=java.util.logging.ConsoleHandler\r\n" + 
@@ -34,7 +42,11 @@ public class Tiling implements Runnable {
 				"java.util.logging.SimpleFormatter.format=[%1$tF %1$tT] [%4$s] [%3$s] %5$s%n"
 			).getBytes()));
 			
-			TilingUtil.initLogging();
+			// Interact with the RootLogger so that it calls LogManager.initializeGlobalHandlers();
+			LogManager.getLogManager().getLogger("").removeHandler(null);
+			
+			// Switch back to normal error stream
+			System.setErr(error_stream);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -55,16 +67,6 @@ public class Tiling implements Runnable {
 		try {
 			String protocol = Tiling.class.getResource("Tiling.class").getProtocol();
 			if(protocol.equals("jar") || protocol.equals("rsrc")) {
-				
-				//}
-				//String text = Tiling.class.getResource("Tiling.class").toString();
-				//boolean insideJar = text.startsWith("jar:") || text.startsWith("rsrc:");
-				
-				//System.out.println(Tiling.class);
-				//System.out.println(Tiling.class.getResource("Tiling.class"));
-				//System.out.println(Tiling.class.getResource("Tiling.class").getProtocol());
-				
-				//if(insideJar) {
 				File jar_file = new File(Tiling.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 				
 				if(System.console() == null) {
@@ -98,7 +100,7 @@ public class Tiling implements Runnable {
 					}
 				}
 			} else {
-				customTilingFolder = new File("C:/Users/Admin/git/TilingDisplay/res/patterns/");
+				customTilingFolder = new File(Tiling.class.getResource("/patterns/").toURI());
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -106,10 +108,6 @@ public class Tiling implements Runnable {
 		
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			//JDialog.setDefaultLookAndFeelDecorated(true);
-			//JFrame.setDefaultLookAndFeelDecorated(true);
-			//System.out.println("Loaded: " + (TilingUtil.time() / 1000000.0) + "ms");
-			//Thread.sleep(100000);
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
@@ -122,7 +120,7 @@ public class Tiling implements Runnable {
 	public static final File EXAMPLES_PATH = new File("examples");
 	public static final File LWJGL_PATH = new File("lwjgl");
 	public static final String AUTHOR = "Victor";
-	public static final String VERSION = "1.0.0";
+	public static final String VERSION = "1.0.1";
 	
 	public static File customTilingFolder;
 	
@@ -132,8 +130,6 @@ public class Tiling implements Runnable {
 
 	public static final int TARGET_FPS = 120;
 	public static int fps = 0;
-	
-	//public static float delta_time = 1;
 	
 	private int height = (int)(540 * 1.5);
 	private int width = (int)(960);
@@ -145,13 +141,13 @@ public class Tiling implements Runnable {
 	
 	public synchronized void start() {
 		running = true;
-		thread = new Thread(this, "Gustav Tiling");
+		thread = new Thread(this, "Main Thread");
 		thread.start();
 	}
 	
 	public synchronized void stop() {
 		if(!running) return;
-		
+		// TODO: Implement if needed
 	}
 	
 	private void init() throws Exception {
@@ -265,7 +261,7 @@ public class Tiling implements Runnable {
 			}
 		}
 		
-		// TODO: Research?
+		// TODO: What to do here?
 		glfwTerminate();
 		TilingUtil.stopEvents();
 		

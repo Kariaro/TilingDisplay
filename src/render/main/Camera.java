@@ -32,6 +32,7 @@ public class Camera {
 	private Vector2f mouse = new Vector2f(0, 0);
 	private Vector2f delta = new Vector2f(0, 0);
 	private void updateMouse() {
+		// TODO: Use Mouse.java ?!
 		double[] x = new double[1];
 		double[] y = new double[1];
 		glfwGetCursorPos(window, x, y);
@@ -121,8 +122,8 @@ public class Camera {
 		return projectionMatrix;
 	}
 	
+	@Deprecated
 	public void setTransform() {
-		//glLoadIdentity();
 		glRotatef(ry, 1, 0, 0);
 		glRotatef(rx, 0, 1, 0);
 		glRotatef(rz, 0, 0, 1);

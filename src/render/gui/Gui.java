@@ -1,6 +1,5 @@
 package render.gui;
 
-
 import java.io.File;
 import java.util.logging.Logger;
 

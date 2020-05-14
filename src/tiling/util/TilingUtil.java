@@ -1,6 +1,5 @@
 package tiling.util;
 
-import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
@@ -13,20 +12,6 @@ import render.gui.GuiFileChooser;
 import render.main.Tiling;
 
 public class TilingUtil {
-	private static PrintStream error_stream;
-	public static void initLogging() {
-		error_stream = System.err;
-		System.setErr(System.out);
-	}
-	
-	public static void printError(Throwable e) {
-		e.printStackTrace(error_stream);
-	}
-	
-	public static void printError(String s) {
-		error_stream.print(s);
-	}
-	
 	public static boolean checkBlockingInput() {
 		return checkBlockingInput(true);
 	}
@@ -117,6 +102,7 @@ public class TilingUtil {
 		executorService.shutdown();
 	}
 	
+	// Debugging
 	private static long lastTime = -1;
 	public static long time() {
 		long oldTime = lastTime;
