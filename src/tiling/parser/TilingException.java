@@ -39,8 +39,12 @@ public class TilingException extends Exception {
 		String line = program.getCurrentLine();
 		LOGGER.warning("#Error in '" + program.getFilePath() + "'");
 		LOGGER.warning("");
-		LOGGER.warning("Invalid command on line (" + program.getLineIndex() + ") '" + line + "'");
-		LOGGER.warning(line);
+		if(line != null) {
+			if(line.length() > 256) line = line.substring(0, 256) + " ...";
+			
+			LOGGER.warning("Invalid command on line (" + program.getLineIndex() + ") '" + line + "'");
+			LOGGER.warning(line);
+		}
 		
 		StringBuilder sb = new StringBuilder();
 		for(int i = 0; i < pointer; i++) sb.append("-");

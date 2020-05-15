@@ -45,7 +45,7 @@ public class TilingRender {
 		height = parent.getHeight();
 		width = parent.getWidth();
 		
-		camera = new Camera(window);
+		camera = new Camera();
 		camera.z = 3;
 		
 		this.gui = new Gui(this);
@@ -266,9 +266,9 @@ public class TilingRender {
 		camera.speed_mod = Math.abs(camera.z) * 10;
 		camera.update();
 		
-		camera.rx = 0;
-		camera.rz = 0;
-		camera.ry = 0;
+		//camera.rx = 0;
+		//camera.rz = 0;
+		//camera.ry = 0;
 		
 		if(camera.z > 5) camera.z = 5;
 		if(camera.z < 0.001) camera.z = 0.001f;
@@ -302,7 +302,7 @@ public class TilingRender {
 			int min_zoom = pattern.getMinimumZoom();
 			int max_zoom = pattern.getMaximumZoom();
 			
-			{
+			if(!pattern.isGenerating()) {
 				boolean key_U = Input.pollKey(GLFW_KEY_U);
 				boolean key_I = Input.pollKey(GLFW_KEY_I);
 				

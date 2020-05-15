@@ -318,6 +318,7 @@ public class Gui {
 					new Vector4f(0.3f, 0.7f, 0.3f, 1),
 					new Vector4f(1, 1, 1, 1)
 					)) {
+					// TODO: Do not reload debug tiling.
 					updateFileSelection();
 					LOGGER.fine("Reloading tiling");
 				}

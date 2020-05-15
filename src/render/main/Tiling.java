@@ -70,7 +70,7 @@ public class Tiling implements Runnable {
 				File jar_file = new File(Tiling.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 				
 				if(System.console() == null) {
-					Runtime.getRuntime().exec("cmd.exe /K start cmd.exe /C \"java -jar \"" + jar_file.getAbsolutePath() + "\"\" " + (DEBUG ? "-d &PAUSE":""));
+					Runtime.getRuntime().exec("cmd.exe /K start cmd.exe /C \"java -Xms256m -jar \"" + jar_file.getAbsolutePath() + "\"\" " + (DEBUG ? "-d &PAUSE":""));
 					System.exit(0);
 				}
 				
@@ -121,21 +121,21 @@ public class Tiling implements Runnable {
 	public static final File EXAMPLES_PATH = new File("examples");
 	public static final File LWJGL_PATH = new File("lwjgl");
 	public static final String AUTHOR = "https://github.com/Kariaro";
-	public static final String VERSION = "1.0.1";
+	public static final String VERSION = "1.0.2";
 	public static final int TARGET_FPS = 120;
 	
 	public static File customTilingFolder;
 	public static boolean DEBUG = false;
 	public static int DEBUG_LEVEL = 0;
-	private int fps = 0;
 	
 	private int height = (int)(540 * 1.5);
-	private int width = (int)(960);
+	private int width = (int)(960 * 1.5);
 	
 	private TilingRender render;
 	private boolean running;
 	private Thread thread;
 	private long window;
+	private int fps;
 	
 	public synchronized void start() {
 		running = true;

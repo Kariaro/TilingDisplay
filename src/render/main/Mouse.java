@@ -9,9 +9,6 @@ public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallb
 	public static double mouseX;
 	public static double mouseY;
 	
-	public static double mouseDx;
-	public static double mouseDy;
-	
 	public static boolean[] buttons = new boolean[256];
 	
 	private final int type;
@@ -25,8 +22,6 @@ public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallb
 			return;
 		}*/
 		
-		mouseDx = mouseX - xpos;
-		mouseDy = mouseY - ypos;
 		mouseX = xpos;
 		mouseY = ypos;
 	}
@@ -61,10 +56,9 @@ public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallb
 	}
 	
 	public static boolean inside(float x, float y, float w, float h) {
-		if(mouseX < x) return false;
-		if(mouseX > x + w) return false;
-		if(mouseY < y) return false;
-		if(mouseY > y + h) return false;
-		return true;
+		return !(mouseX < x
+			  || mouseX > x + w
+			  || mouseY < y
+			  || mouseY > y + h);
 	}
 }
