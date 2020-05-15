@@ -10,6 +10,7 @@ import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
 import render.main.Tiling;
+import tiling.util.TilingUtil;
 
 public class GuiFileChooser {
 	public static JFileChooser fileChooser;
@@ -20,7 +21,7 @@ public class GuiFileChooser {
 		public boolean accept(File f) {
 			String name = f.getName().toLowerCase();
 			
-			if(Tiling.DEBUG && name.endsWith(".debug")) {
+			if(TilingUtil.isDebug() && name.endsWith(".debug")) {
 				return true;
 			}
 			
@@ -62,7 +63,7 @@ public class GuiFileChooser {
 			parentFrame.setVisible(true);
 			parentFrame.requestFocus();
 			
-			fileChooser.setCurrentDirectory(Tiling.customTilingFolder);
+			fileChooser.setCurrentDirectory(TilingUtil.getDefaultPath());
 			
 			int returnVal = fileChooser.showDialog(parentFrame, "Open");
 			if(returnVal == JFileChooser.APPROVE_OPTION) {

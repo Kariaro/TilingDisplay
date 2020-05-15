@@ -8,9 +8,8 @@ import java.io.InputStream;
 
 public class FileUtils {
 	public static byte[] readFileBytes(File file) {
-		try {
+		try(DataInputStream ds = new DataInputStream(new FileInputStream(file))) {
 			ByteArrayOutputStream bs = new ByteArrayOutputStream();
-			DataInputStream ds = new DataInputStream(new FileInputStream(file));
 			byte[] buffer = new byte[2048];
 			int readBytes = 0;
 			
@@ -18,7 +17,6 @@ public class FileUtils {
 				bs.write(buffer, 0, readBytes);
 			}
 			
-			ds.close();
 			return bs.toByteArray();
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -30,9 +28,8 @@ public class FileUtils {
 	public static byte[] readStreamBytes(InputStream stream) {
 		if(stream == null) return new byte[0];
 		
-		try {
+		try(DataInputStream ds = new DataInputStream(stream)) {
 			ByteArrayOutputStream bs = new ByteArrayOutputStream();
-			DataInputStream ds = new DataInputStream(stream);
 			byte[] buffer = new byte[2048];
 			int readBytes = 0;
 			
@@ -40,7 +37,6 @@ public class FileUtils {
 				bs.write(buffer, 0, readBytes);
 			}
 			
-			ds.close();
 			return bs.toByteArray();
 		} catch(Exception e) {
 			e.printStackTrace();

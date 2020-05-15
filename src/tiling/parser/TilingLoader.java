@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import render.main.Tiling;
 import tiling.util.FileUtils;
 import tiling.util.MathUtils;
 import tiling.util.TilingUtil;
@@ -21,7 +20,17 @@ public class TilingLoader {
 	}
 	
 	public static TilingPattern loadGlobalPattern(String path) {
-		return _loadPattern(path, FileUtils.readFile(path));
+		try {
+			return _loadPattern(path, FileUtils.readFile(path));
+		} catch(TilingException e) {
+			e.printStackTrace();
+			
+			if(TilingUtil.isDebug()) {
+				e.printStackTrace(System.out);
+			}
+		}
+		
+		return null;
 	}
 	
 	public static TilingPattern loadLocalPattern(String path) {
@@ -36,8 +45,12 @@ public class TilingLoader {
 			}
 			
 			return pattern;
-		} catch(Exception e) {
+		} catch(TilingException e) {
 			e.printStackTrace();
+			
+			if(TilingUtil.isDebug()) {
+				e.printStackTrace(System.out);
+			}
 		}
 		
 		return null;
@@ -90,12 +103,12 @@ public class TilingLoader {
 		"splitdata",
 	};
 	
-	private static synchronized TilingPattern _loadPattern(String filePath, String content) {
+	private static synchronized TilingPattern _loadPattern(String filePath, String content) throws TilingException {
 		if(content.isEmpty()) {
 			return null;
 		}
 		
-		TilingUtil.setDebugLevel(LOGGER);
+		TilingUtil.applyDebugLevel(LOGGER);
 		
 		TilingProgram program = new TilingProgram(filePath, content);
 		TilingPattern pattern = new TilingPattern(program);
@@ -104,369 +117,340 @@ public class TilingLoader {
 		String currentTile = "";
 		int data_type = 0;
 		
-		try {
-			while(program.hasMoreLines()) {
-				if(program.hasErrors()) break;
+		while(program.hasMoreLines()) {
+			if(program.hasErrors()) break;
+			
+			String line = program.getNextLine();
+			if(line == null) break;
+			
+			// LOGGER.info(String.format("%3d: ", program.getLineIndex()) + line);
+			
+			String[] arr = line.split(":");
+			String name = arr[0].trim().toLowerCase();
+			
+			if(line.indexOf(':') < 0) {
+				String value = line.trim();
 				
-				String line = program.getNextLine();
-				if(line == null) break;
-				
-				// LOGGER.info(String.format("%3d: ", program.getLineIndex()) + line);
-				
-				String[] arr = line.split(":");
-				String name = arr[0].trim().toLowerCase();
-				
-				if(line.indexOf(':') < 0) {
-					String value = line.trim();
-					
-					switch(data_type) {
-						case SPLIT_DATA:
-							try {
-								pattern.tiles.get(currentTile).addInstruction(value);
-							} catch(Exception e) {
-								throw new TilingException(program,
-									"SplitData: Error " + e.getMessage(),
-									ERROR_INVALID_VALUE, e
-								);
-							}
-							continue;
-						case VERTEX_DATA:
-							try {
-								pattern.tiles.get(currentTile).addVertexData(value);
-							} catch(Exception e) {
-								throw new TilingException(program,
-									"VertexData: Error " + e.getMessage(),
-									ERROR_INVALID_VALUE, e
-								);
-							}
-							continue;
-						case TEXTURE_DATA:
-							try {
-								pattern.tiles.get(currentTile).addUvData(value);
-							} catch(Exception e) {
-								throw new TilingException(program,
-									"TextureData: Error " + e.getMessage(),
-									ERROR_INVALID_VALUE, e
-								);
-							}
-							continue;
-						case DISPLAY_DATA:
-							try {
-								pattern.tiles.get(currentTile).addDisplayData(value);
-							} catch(Exception e) {
-								throw new TilingException(program,
-									"DisplayData: Error " + e.getMessage(),
-									ERROR_INVALID_VALUE, e
-								);
-							}
-							continue;
-						default:
-							throw new UnsupportedOperationException();
-					}
-				} else {
-					if(!name.isEmpty()) {
-						if(checks.contains(name)) {
+				switch(data_type) {
+					case SPLIT_DATA:
+						try {
+							pattern.tiles.get(currentTile).addInstruction(value);
+						} catch(Exception e) {
 							throw new TilingException(program,
-								name + " was declared multiple times",
-								ERROR_MULTIPLE_DECLARES
+								"SplitData: Error " + e.getMessage(),
+								ERROR_INVALID_VALUE, e
 							);
-						} else checks.add(name);
-						
-						errorCheckField(program, false);
-					}
+						}
+						continue;
+					case VERTEX_DATA:
+						try {
+							pattern.tiles.get(currentTile).addVertexData(value);
+						} catch(Exception e) {
+							throw new TilingException(program,
+								"VertexData: Error " + e.getMessage(),
+								ERROR_INVALID_VALUE, e
+							);
+						}
+						continue;
+					case TEXTURE_DATA:
+						try {
+							pattern.tiles.get(currentTile).addUvData(value);
+						} catch(Exception e) {
+							throw new TilingException(program,
+								"TextureData: Error " + e.getMessage(),
+								ERROR_INVALID_VALUE, e
+							);
+						}
+						continue;
+					case DISPLAY_DATA:
+						try {
+							pattern.tiles.get(currentTile).addDisplayData(value);
+						} catch(Exception e) {
+							throw new TilingException(program,
+								"DisplayData: Error " + e.getMessage(),
+								ERROR_INVALID_VALUE, e
+							);
+						}
+						continue;
+					default:
+						throw new UnsupportedOperationException();
+				}
+			} else {
+				if(!name.isEmpty()) {
+					if(checks.contains(name)) {
+						throw new TilingException(program,
+							name + " was declared multiple times",
+							ERROR_MULTIPLE_DECLARES
+						);
+					} else checks.add(name);
+					
+					errorCheckField(program, false);
+				}
+			}
+			
+			if(name.isEmpty()) {
+				if(arr.length < 2) {
+					throw new TilingException(program,
+						"That shape does not exist",
+						line.lastIndexOf(':') + 2,
+						ERROR_INVALID_VALUE
+					);
 				}
 				
-				if(name.isEmpty()) {
+				String str = arr[1].trim();
+				if(!pattern.names.contains(str)) {
+					throw new TilingException(program,
+						"That shape does not exist",
+						line.lastIndexOf(':') + 1 + arr[1].indexOf(str),
+						ERROR_INVALID_VALUE
+					);
+				}
+				
+				currentTile = str;
+				continue;
+			}
+			
+			switch(name) {
+				case "name": 
+				{
+					pattern.name = parseString(program);
+					LOGGER.finest("Tiling name = " + pattern.name);
+					break;
+				}
+				case "symmetry": {
+					int value = parseInt(program);
+					if(value < 1) {
+						throw new TilingException(program,
+							"Symmetry needs to be greater than or equal to one",
+							line.lastIndexOf(':') + 1,
+							ERROR_INVALID_VALUE
+						);
+					}
+					pattern.symmetry = value;
+					LOGGER.finest("Tiling symmetry = " + pattern.symmetry);
+					break;
+				}
+				case "shapes": {
+					List<String> list = parseStrings(program);
+					for(String s : list) {
+						if(pattern.names.contains(s)) {
+							throw new TilingException(program,
+								"Shape was declared multiple times",
+								ERROR_MULTIPLE_DECLARES
+							);
+						}
+						pattern.names.add(s);
+					}
+					for(int i = 0; i < pattern.names.size(); i++) {
+						String s = pattern.names.get(i);
+						pattern.tiles.put(s, new TilingTile(pattern, s, i));
+					}
+					LOGGER.finest("Tiling names = " + pattern.names);
+					break;
+				}
+				case "colors": {
+					pattern.colors = parseColors(program);
+					break;
+				}
+				case "minimumzoom": {
+					int value = parseInt(program);
+					if(value < 0) {
+						throw new TilingException(program,
+							"MinimumZoom can't be negative",
+							line.lastIndexOf(':') + 1,
+							ERROR_INVALID_VALUE
+						);
+					}
+					pattern.minimum_zoom = value;
+					LOGGER.finest("Tiling minimum_zoom = " + pattern.minimum_zoom);
+					break;
+				}
+				case "maximumzoom": {
+					int value = parseInt(program);
+					if(value < 1) {
+						throw new TilingException(program,
+							"MaximumZoom can't be lower than one",
+							line.lastIndexOf(':') + 1,
+							ERROR_INVALID_VALUE
+						);
+					}
+					if(value > 128) {
+						throw new TilingException(program,
+							"MaximumZoom can't be greater than 128",
+							line.lastIndexOf(':') + 1,
+							ERROR_INVALID_VALUE
+						);
+					}
+					pattern.maximum_zoom = value;
+					LOGGER.finest("Tiling maximum_zoom = " + pattern.maximum_zoom);
+					break;
+				}
+				case "scaling": {
+					float value = parseFloat(program);
+					if(value < 0 || value > 1) {
+						throw new TilingException(program,
+							"Scaling needs to be greater than zero and less than one",
+							line.lastIndexOf(':') + 1,
+							ERROR_INVALID_VALUE
+						);
+					}
+					pattern.scaling = value;
+					LOGGER.finest("Tiling scaling = " + pattern.scaling);
+					break;
+				}
+				
+				case "startshape": {
+					if(pattern.names.isEmpty()) {
+						// TODO: Check if start shapes exists
+						throw new TilingException(program,
+							"StartShape needs to be placed after Shapes",
+							ERROR_INVALID_POSITION
+						);
+					}
+					String value = parseString(program);
+					if(!pattern.names.contains(value)) {
+						throw new TilingException(program,
+							"That shape does not exist",
+							line.lastIndexOf(':') + 1 + arr[1].indexOf(value),
+							ERROR_INVALID_VALUE
+						);
+					}
+					pattern.default_tile = parseString(program);
+					LOGGER.finest("Tiling defaultTile = " + pattern.default_tile);
+					break;
+				}
+				case "starttransform":  {
+					pattern.startTransform = parseVector3f(program);
+					LOGGER.finest("Tiling startTransform = " + String.format("(%.4f, %.4f, %.4f)", pattern.startTransform.x, pattern.startTransform.y, pattern.startTransform.z));
+					break;
+				}
+				case "startrotation": {
+					float value = (parseFloat(program) % 360);
+					pattern.startRotation = value * MathUtils.deg2Rad;
+					LOGGER.finest("Tiling startRotation = " + value);
+					break;
+				}
+				case "startscale": {
+					float value = parseFloat(program);
+					if(value <= 0) {
+						throw new TilingException(program,
+							"StartScale needs to be greater than zero",
+							line.lastIndexOf(':') + 1,
+							ERROR_INVALID_VALUE
+						);
+					}
+					if(value > 128) {
+						throw new TilingException(program,
+							"StartScale needs to be less than 128",
+							line.lastIndexOf(':') + 1,
+							ERROR_INVALID_VALUE
+						);
+					}
+					pattern.startScale = value;
+					LOGGER.finest("Tiling startScale = " + pattern.startScale);
+					break;
+				}
+				
+				case "texture": {
 					if(arr.length < 2) {
 						throw new TilingException(program,
-							"That shape does not exist",
-							line.lastIndexOf(':') + 2,
-							ERROR_INVALID_VALUE
+							"Field can't be empty",
+							ERROR_EMPTY_VALUE
 						);
+					} else {
+						if(pattern.getTexture() == null) {
+							String val = arr[1].trim();
+							pattern.setTexture(val);
+							
+							// TODO: Check if the url exists and fix it
+							LOGGER.finest("Tiling texturePath = " + val);
+						}
 					}
-					
-					String str = arr[1].trim();
-					if(!pattern.names.contains(str)) {
+					break;
+				}
+				
+				case "showcorners": {
+					pattern.show_corners = parseBoolean(program);
+					LOGGER.finest("Tiling show_corners = " + pattern.show_corners);
+					break;
+				}
+				case "cornerweight": {
+					float value = parseFloat(program);
+					if(value < 0) {
 						throw new TilingException(program,
-							"That shape does not exist",
-							line.lastIndexOf(':') + 1 + arr[1].indexOf(str),
+							"CornerWeight can't be less than zero",
+							line.lastIndexOf(':') + 1,
 							ERROR_INVALID_VALUE
 						);
 					}
 					
-					currentTile = str;
+					pattern.corner_weight = value;
+					LOGGER.finest("Tiling corner_weight = " + pattern.corner_weight);
+					break;
+				}
+				
+				case "debug": {
+					pattern.debug = parseBoolean(program);
+					LOGGER.finest("Tiling debug = " + pattern.debug);
+					break;
+				}
+				case "debugcolors": {
+					List<Vector4f> list = parseColors(program);
+					for(int i = 0; i < Math.min(3, list.size()); i++) {
+						pattern.debugColors[i] = list.get(i);
+					}
+					// LOGGER.finest("Tiling debugColors") TODO:
+					break;
+				}
+				
+				case "displaydata": {
+					LOGGER.finest("Tiling DISPLAY_DATA");
+					data_type = DISPLAY_DATA;
+					continue;
+				}
+				case "splitdata": {
+					LOGGER.finest("Tiling TILE_DATA");
+					data_type = SPLIT_DATA;
+					continue;
+				}
+				case "vertexdata": {
+					LOGGER.finest("Tiling VERTEX_DATA");
+					data_type = VERTEX_DATA;
+					continue;
+				}
+				case "texturedata": {
+					LOGGER.finest("Tiling TEXTURE_DATA");
+					data_type = TEXTURE_DATA;
 					continue;
 				}
 				
-				switch(name) {
-					case "name": {
-						pattern.name = parseString(program);
-						LOGGER.finest("Tiling name = " + pattern.name);
-						break;
-					}
-					case "symmetry": {
-						int value = parseInt(program);
-						if(value < 1) {
-							throw new TilingException(program,
-								"Symmetry needs to be greater than or equal to one",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						pattern.symmetry = value;
-						LOGGER.finest("Tiling symmetry = " + pattern.symmetry);
-						break;
-					}
-					case "shapes": {
-						List<String> list = parseStrings(program);
-						for(String s : list) {
-							if(pattern.names.contains(s)) {
-								throw new TilingException(program,
-									"Shape was declared multiple times",
-									ERROR_MULTIPLE_DECLARES
-								);
-							}
-							pattern.names.add(s);
-						}
-						for(int i = 0; i < pattern.names.size(); i++) {
-							String s = pattern.names.get(i);
-							pattern.tiles.put(s, new TilingTile(pattern, s, i));
-						}
-						LOGGER.finest("Tiling names = " + pattern.names);
-						break;
-					}
-					case "colors": {
-						pattern.colors = parseColors(program);
-						break;
-					}
-					case "minimumzoom": {
-						int value = parseInt(program);
-						if(value < 0) {
-							throw new TilingException(program,
-								"MinimumZoom can't be negative",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						pattern.minimum_zoom = value;
-						LOGGER.finest("Tiling minimum_zoom = " + pattern.minimum_zoom);
-						break;
-					}
-					case "maximumzoom": {
-						int value = parseInt(program);
-						if(value < 1) {
-							throw new TilingException(program,
-								"MaximumZoom can't be lower than one",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						if(value > 128) {
-							throw new TilingException(program,
-								"MaximumZoom can't be greater than 128",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						pattern.maximum_zoom = value;
-						LOGGER.finest("Tiling maximum_zoom = " + pattern.maximum_zoom);
-						break;
-					}
-					case "scaling": {
-						float value = parseFloat(program);
-						if(value < 0) {
-							throw new TilingException(program,
-								"Scaling can't be less than or equal be zero",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						if(value > 1) {
-							throw new TilingException(program,
-								"Scaling can't be greater than one",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						pattern.scaling = value;
-						LOGGER.finest("Tiling scaling = " + pattern.scaling);
-						break;
-					}
-					
-					case "startshape": {
-						if(pattern.names.isEmpty()) {
-							throw new TilingException(program,
-								"StartShape needs to be placed after Shapes",
-								ERROR_INVALID_POSITION
-							);
-						}
-						String value = parseString(program);
-						if(!pattern.names.contains(value)) {
-							throw new TilingException(program,
-								"That shape does not exist",
-								line.lastIndexOf(':') + 1 + arr[1].indexOf(value),
-								ERROR_INVALID_VALUE
-							);
-						}
-						pattern.default_tile = parseString(program);
-						LOGGER.finest("Tiling defaultTile = " + pattern.default_tile);
-						break;
-					}
-					case "starttransform":  {
-						pattern.startTransform = parseVector3f(program);
-						LOGGER.finest("Tiling startTransform = " + String.format("(%.4f, %.4f, %.4f)", pattern.startTransform.x, pattern.startTransform.y, pattern.startTransform.z));
-						break;
-					}
-					case "startrotation": {
-						pattern.startRotation = parseFloat(program) * MathUtils.deg2Rad;
-						LOGGER.finest("Tiling startRotation = " + (pattern.startRotation * MathUtils.rad2Deg));
-						break;
-					}
-					case "startscale": {
-						float value = parseFloat(program);
-						if(value <= 0) {
-							throw new TilingException(program,
-								"StartScale needs to be greater than zero",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						pattern.startScale = value;
-						LOGGER.finest("Tiling startScale = " + pattern.startScale);
-						break;
-					}
-					
-					case "texture": {
-						if(arr.length < 2) {
-							throw new TilingException(program,
-								"Field can't be empty",
-								ERROR_EMPTY_VALUE
-							);
-						} else {
-							if(pattern.getTexture() == null) {
-								String val = arr[1].trim();
-								pattern.setTexture(val);
-								
-								// TODO: Check if the url exists and fix it
-								LOGGER.finest("Tiling texturePath = " + val);
-							}
-						}
-						break;
-					}
-					
-					case "showcorners": {
-						pattern.show_corners = parseBoolean(program);
-						LOGGER.finest("Tiling show_corners = " + pattern.show_corners);
-						break;
-					}
-					case "cornerweight": {
-						float value = parseFloat(program);
-						if(value < 0) {
-							throw new TilingException(program,
-								"CornerWeight can't be less than zero",
-								line.lastIndexOf(':') + 1,
-								ERROR_INVALID_VALUE
-							);
-						}
-						
-						pattern.corner_weight = value;
-						LOGGER.finest("Tiling corner_weight = " + pattern.corner_weight);
-						break;
-					}
-					
-					case "debug": {
-						pattern.debug = parseBoolean(program);
-						LOGGER.finest("Tiling debug = " + pattern.debug);
-						break;
-					}
-					case "debugcolors": {
-						List<Vector4f> list = parseColors(program);
-						for(int i = 0; i < Math.min(3, list.size()); i++) {
-							pattern.debugColors[i] = list.get(i);
-						}
-						break;
-					}
-					
-					case "displaydata": {
-						LOGGER.finest("Tiling DISPLAY_DATA");
-						data_type = DISPLAY_DATA;
-						continue;
-					}
-					case "splitdata": {
-						LOGGER.finest("Tiling TILE_DATA");
-						data_type = SPLIT_DATA;
-						continue;
-					}
-					case "vertexdata": {
-						LOGGER.finest("Tiling VERTEX_DATA");
-						data_type = VERTEX_DATA;
-						continue;
-					}
-					case "texturedata": {
-						LOGGER.finest("Tiling TEXTURE_DATA");
-						data_type = TEXTURE_DATA;
-						continue;
-					}
-					
-					default: {
-						throw new TilingException(program,
-							"Invalid command, Did you mean '" + guessCommand(program) + "'",
-							ERROR_INVALID_VALUE
-						);
-					}
+				default: {
+					throw new TilingException(program,
+						"Invalid command, Did you mean '" + guessCommand(program) + "'",
+						ERROR_INVALID_VALUE
+					);
 				}
 			}
-		} catch(TilingException e) {
-			e.printStackTrace();
-			
-			if(Tiling.DEBUG) {
-				e.printStackTrace(System.out);
-			}
-			
-		} catch(Exception e) {
-			LOGGER.severe("This is not a normal error");
-			LOGGER.severe("Please report this if you can");
-			e.printStackTrace(System.out);
-			
-			return null;
-		}
-		
-		if(program.hasErrors()) {
-			return null;
 		}
 		
 		if(!checks.contains("name")) {
-			logInfoError(filePath);
-			LOGGER.warning("Name was not declared");
-			program.addError(ERROR_NOT_DECLARED);
+			throw new TilingException(program, "Name was not declared", ERROR_NOT_DECLARED);
 		}
 		
 		if(!checks.contains("shapes")) {
-			logInfoError(filePath);
-			LOGGER.warning("Shapes was not declared");
-			program.addError(ERROR_NOT_DECLARED);
+			throw new TilingException(program, "Shapes was not declared", ERROR_NOT_DECLARED);
 		}
 		
 		if(!checks.contains("vertexdata")) {
-			logInfoError(filePath);
-			LOGGER.warning("VertexData was not declared");
-			program.addError(ERROR_NOT_DECLARED);
+			throw new TilingException(program, "VertexData was not declared", ERROR_NOT_DECLARED);
 		}
 		
 		if(!checks.contains("splitdata")) {
-			logInfoError(filePath);
-			LOGGER.warning("SplitData was not declared");
-			program.addError(ERROR_NOT_DECLARED);
+			throw new TilingException(program, "SplitData was not declared", ERROR_NOT_DECLARED);
 		}
 		
 		if(pattern.maximum_zoom < pattern.minimum_zoom) {
-			logInfoError(filePath);
-			LOGGER.warning("MaximumZoom can't be lower than MinimumZoom");
-			program.addError(ERROR_NOT_DECLARED);
-		}
-		
-		if(program.hasErrors()) {
-			return null;
+			throw new TilingException(program, "MinimumZoom can't be greater than MaximumZoom", ERROR_INVALID_VALUE);
 		}
 		
 		pattern.build();
@@ -476,25 +460,31 @@ public class TilingLoader {
 			for(int i = pattern.minimum_zoom; i < pattern.maximum_zoom; i++) {
 				int faces = tile.calculate_faces(i);
 				if(faces < 0 || faces > 1000000) {
+					LOGGER.info("Invalid zoom: min=" +  pattern.minimum_zoom + ", max=" + pattern.maximum_zoom);
+					LOGGER.finest("Triangles: " + tile.calculate_faces_exact(pattern.maximum_zoom));
+					LOGGER.info("The zoom is outside the range");
+					
 					if(i == pattern.minimum_zoom) {
-						LOGGER.warning("Invalid minimum_zoom: " + pattern.maximum_zoom);
-						LOGGER.warning("The zoom is outside the range for drawing.");
-						LOGGER.warning("Triangles: " + tile.calculate_faces_exact(i));
-						LOGGER.warning("");
-						program.addError(ERROR_INVALID_VALUE);
-						return null;
+						//LOGGER.warning("Invalid minimum_zoom: " + pattern.minimum_zoom);
+						throw new TilingException(
+							program, "The zoom is outside the range for drawing.",
+							ERROR_INVALID_VALUE
+						);
 					}
 					
-					LOGGER.info("Invalid maximum_zoom: " + pattern.maximum_zoom);
-					LOGGER.finest("Triangles: " + tile.calculate_faces_exact(pattern.maximum_zoom));
-					LOGGER.info("The zoom is outside the range for drawing.");
-					LOGGER.info("Changing the value to: " + (i - 1));
+					LOGGER.info("Changing the MaximumZoom value to: " + (i - 1));
+					
+					//LOGGER.info("Invalid maximum_zoom: " + pattern.maximum_zoom);
+					//LOGGER.finest("Triangles: " + tile.calculate_faces_exact(pattern.maximum_zoom));
+					//LOGGER.info("The zoom is outside the range for drawing.");
+					//LOGGER.info("Changing the value to: " + (i - 1));
 					pattern.maximum_zoom = i - 1;
+					break;
 				}
 			}
 		}
 		
-		if(Tiling.DEBUG) {
+		if(TilingUtil.isDebug()) {
 			LOGGER.finest("Pattern:");
 			LOGGER.finest("  name        = " + pattern.name);
 			LOGGER.finest("  symmetry    = " + pattern.symmetry);
@@ -570,9 +560,11 @@ public class TilingLoader {
 			String str = split[i].trim();
 			try {
 				list.add(ValueParser.parseColor(str));
-			} catch(Exception e) {
+			} catch(NumberFormatException e) {
+				// TODO: Throw the exception
 				throw new TilingException(program,
 					"Invalid color value at index:" + i + ", value:" + str,
+					line.lastIndexOf(':') + 1,
 					ERROR_INVALID_VALUE
 				);
 			}
@@ -596,7 +588,7 @@ public class TilingLoader {
 		for(int i = 0; i < Math.min(size, split.length); i++) {
 			try {
 				xyzw[i] = Float.parseFloat(split[i].trim());
-			} catch(Exception e) {
+			} catch(NumberFormatException e) {
 				throw new TilingException(program,
 					"Invalid float value at index:" + i,
 					ERROR_INVALID_VALUE
@@ -614,8 +606,17 @@ public class TilingLoader {
 		String[] arr = line.split(":");
 		
 		try {
-			return Float.parseFloat(arr[1].trim());
-		} catch(Exception e) {
+			float value = Float.parseFloat(arr[1].trim());
+			
+			if(!Float.isFinite(value)) {
+				throw new TilingException(program,
+					"Invalid float value, can't be NaN or Infinity", arr[0].length() + 1 + arr[1].indexOf(arr[1].trim()),
+					ERROR_INVALID_VALUE
+				);
+			}
+			
+			return value;
+		} catch(NumberFormatException e) {
 			throw new TilingException(program,
 				"Invalid float value", arr[0].length() + 1 + arr[1].indexOf(arr[1].trim()),
 				ERROR_INVALID_VALUE
@@ -631,7 +632,7 @@ public class TilingLoader {
 		
 		try {
 			return Integer.parseInt(arr[1].trim());
-		} catch(Exception e) {
+		} catch(NumberFormatException e) {
 			throw new TilingException(program,
 				"Invalid integer value", arr[0].length() + 1 + arr[1].indexOf(arr[1].trim()),
 				ERROR_INVALID_VALUE
@@ -721,10 +722,5 @@ public class TilingLoader {
 		}
 		
 		return -1;
-	}
-	
-	private static void logInfoError(String filePath) {
-		LOGGER.warning("#Error in '" + filePath + "'");
-		LOGGER.warning("");
 	}
 }

@@ -20,7 +20,7 @@ import org.lwjgl.opengl.GL11;
 import tiling.mesh.Texture;
 
 public class Text {
-	private static final String characters =
+	private static final String CHARACTERS =
 		"abcdefghijklmnopqrstuvwxyzåäö" +
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ" +
 		"0123456789" +
@@ -65,8 +65,8 @@ public class Text {
 			g.setColor(Color.WHITE);
 			
 			int max_width = (int)(ATTLAS_WIDTH / (box.getWidth() + ATTLAS_SPACE));
-			for(int i = 0; i < characters.length(); i++) {
-				char c = characters.charAt(i);
+			for(int i = 0; i < CHARACTERS.length(); i++) {
+				char c = CHARACTERS.charAt(i);
 				
 				float x = (float)(box.getWidth() + ATTLAS_SPACE) * (i % max_width);
 				float y = (float)(box.getHeight() + ATTLAS_SPACE) * (i / max_width) - (float)box.getY();
@@ -77,7 +77,7 @@ public class Text {
 		ImageIO.write(attlas, "png", new File("res/font.png"));
 	}
 	
-	public static Rectangle2D box = new Rectangle2D.Float(
+	public static final Rectangle2D box = new Rectangle2D.Float(
 		0,
 		-0.828125f * ATTLAS_SIZE,
 		0.55f * ATTLAS_SIZE,
@@ -92,7 +92,7 @@ public class Text {
 		texture.bind();
 		GL11.glBegin(GL11.GL_TRIANGLES);
 		for(int i = 0; i < chars.length(); i++) {
-			int index = characters.indexOf(chars.charAt(i));
+			int index = CHARACTERS.indexOf(chars.charAt(i));
 			
 			double xx = (box.getWidth() + ATTLAS_SPACE) * (index % max_width);
 			double yy = (box.getHeight() + ATTLAS_SPACE) * (index / max_width);

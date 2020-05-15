@@ -3,7 +3,7 @@ package tiling.parser;
 import org.joml.Vector4f;
 
 public class ValueParser {
-	public static Vector4f parseColor(String value) {
+	public static Vector4f parseColor(String value) throws NumberFormatException {
 		int rgb, a, r, g, b;
 		String str = value.trim();
 		
@@ -50,9 +50,10 @@ public class ValueParser {
 			b = (rgb      ) & 0xff;
 			
 			return new Vector4f(r / 255.0f, g / 255.0f, b / 255.0f, 1);
+		} else if(str.startsWith("0x")) {
+			str = value.substring(2);
 		}
 		
-		if(str.startsWith("0x")) str = value.substring(2);
 		rgb = Integer.valueOf(str, 16);
 		
 		a = (rgb >> 24) & 0xff;

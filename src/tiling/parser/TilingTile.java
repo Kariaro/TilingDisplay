@@ -266,6 +266,9 @@ public class TilingTile {
 			if((total_faces >> 31L) != 0) return -1;
 			return (int)total_faces;
 		} catch(ArithmeticException e) {
+			// If we got a ArithmeticException it means
+			// that a addition or multiplication of longs
+			// overflowed.
 		}
 		
 		return -1;
