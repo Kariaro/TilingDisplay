@@ -28,7 +28,7 @@ public class TilingShader {
 			throw new Exception("Could not create Shader");
 		}
 		
-		uniforms = new HashMap<String, Integer>();
+		uniforms = new HashMap<>();
 	}
 	
 	public TilingShader(String vertexPath, String fragmentPath) throws Exception {
@@ -41,7 +41,7 @@ public class TilingShader {
 		createFragmentShader(fragmentPath);
 		link();
 		
-		uniforms = new HashMap<String, Integer>();
+		uniforms = new HashMap<>();
 	}
 	
 	public void createVertexShader(String shaderPath) throws Exception {
@@ -116,7 +116,7 @@ public class TilingShader {
 		GL20.glBindAttribLocation(programId, index, name);
 	}
 	
-	public void createUniform(String uniformName) throws Exception {
+	public void createUniform(String uniformName) {
 		int uniformLocation = glGetUniformLocation(programId, uniformName);
 		uniforms.put(uniformName, uniformLocation);
 	}

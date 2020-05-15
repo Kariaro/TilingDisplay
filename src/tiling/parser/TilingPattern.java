@@ -121,7 +121,7 @@ public class TilingPattern {
 	}
 	
 	protected void build() {
-		TilingUtil.setDebugLevel(LOGGER);
+		TilingUtil.applyDebugLevel(LOGGER);
 		LOGGER.finest("Building TilingPattern [" + name + "]");
 		
 		for(int i = 0; i < names.size(); i++) {
@@ -150,7 +150,7 @@ public class TilingPattern {
 		if(max_depth < minimum_zoom) max_depth = minimum_zoom;
 		if(max_depth > maximum_zoom) max_depth = maximum_zoom;
 		
-		TilingUtil.setDebugLevel(LOGGER);
+		TilingUtil.applyDebugLevel(LOGGER);
 		if(program.hasErrors()) {
 			System.out.println("Program has errors!");
 			return false;
@@ -176,6 +176,8 @@ public class TilingPattern {
 			
 			{
 				long faces = tilingTile.calculate_faces(zoom);
+				// TODO: This should never be called because inside
+				// TilingLoader, we cap the value before 1000000.
 				if(faces < 0 || faces > 1000000) {
 					LOGGER.warning("Mesh to big. " + faces + " faces");
 					LOGGER.warning("The limit is 1000000 faces!");
@@ -184,6 +186,7 @@ public class TilingPattern {
 					return;
 				}
 				LOGGER.finer("Creating geometry: " + faces + " faces");
+				
 				LOGGER.finest("Generation Settings");
 				LOGGER.finest("   zoom = " + zoom);
 				LOGGER.finest("   default_tile = " + tilingTile);

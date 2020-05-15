@@ -8,7 +8,6 @@ import java.util.logging.Logger;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
-import render.main.Tiling;
 import tiling.util.FileUtils;
 import tiling.util.MathUtils;
 import tiling.util.TilingUtil;
@@ -23,11 +22,10 @@ public class TilingLoader {
 	public static TilingPattern loadGlobalPattern(String path) {
 		try {
 			return _loadPattern(path, FileUtils.readFile(path));
-			
 		} catch(TilingException e) {
 			e.printStackTrace();
 			
-			if(Tiling.DEBUG) {
+			if(TilingUtil.isDebug()) {
 				e.printStackTrace(System.out);
 			}
 		}
@@ -50,7 +48,7 @@ public class TilingLoader {
 		} catch(TilingException e) {
 			e.printStackTrace();
 			
-			if(Tiling.DEBUG) {
+			if(TilingUtil.isDebug()) {
 				e.printStackTrace(System.out);
 			}
 		}
@@ -110,7 +108,7 @@ public class TilingLoader {
 			return null;
 		}
 		
-		TilingUtil.setDebugLevel(LOGGER);
+		TilingUtil.applyDebugLevel(LOGGER);
 		
 		TilingProgram program = new TilingProgram(filePath, content);
 		TilingPattern pattern = new TilingPattern(program);
@@ -213,7 +211,8 @@ public class TilingLoader {
 			}
 			
 			switch(name) {
-				case "name": {
+				case "name": 
+				{
 					pattern.name = parseString(program);
 					LOGGER.finest("Tiling name = " + pattern.name);
 					break;
@@ -485,7 +484,7 @@ public class TilingLoader {
 			}
 		}
 		
-		if(Tiling.DEBUG) {
+		if(TilingUtil.isDebug()) {
 			LOGGER.finest("Pattern:");
 			LOGGER.finest("  name        = " + pattern.name);
 			LOGGER.finest("  symmetry    = " + pattern.symmetry);

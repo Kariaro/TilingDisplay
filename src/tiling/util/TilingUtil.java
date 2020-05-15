@@ -9,9 +9,54 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import render.gui.GuiFileChooser;
-import render.main.Tiling;
 
 public class TilingUtil {
+	/**
+	 * 0: Minimal
+	 * 1: Partial
+	 * 2: Greater
+	 * 3: Maximum
+	 */
+	private static int DEBUG_LEVEL = 0;
+	private static boolean DEBUG;
+	
+	public static void setDebug(boolean enable) {
+		DEBUG = enable;
+	}
+	
+	public static boolean isDebug() {
+		return DEBUG;
+	}
+	public static void setDebugLevel(int level) {
+		DEBUG_LEVEL = level;
+	}
+	
+	public static int getDebugLevel() {
+		return DEBUG_LEVEL;
+	}
+	
+	private static java.io.File defaultPath;
+	public static void setDefaultPath(java.io.File file) {
+		defaultPath = file;
+	}
+	public static java.io.File getDefaultPath() {
+		return defaultPath;
+	}
+	
+	public static void applyDebugLevel(Logger logger) {
+		if(DEBUG) {
+			switch(DEBUG_LEVEL) {
+				case 0: logger.setLevel(Level.INFO); break;
+				case 1: logger.setLevel(Level.FINE); break;
+				case 2: logger.setLevel(Level.FINER); break;
+				case 3: logger.setLevel(Level.ALL); break;
+				default:
+			}
+		} else {
+			logger.setLevel(Level.INFO);
+		}
+	}
+	
 	public static boolean checkBlockingInput() {
 		return checkBlockingInput(true);
 	}
@@ -40,19 +85,6 @@ public class TilingUtil {
 		}
 		
 		return false;
-	}
-	
-	public static void setDebugLevel(Logger logger) {
-		if(Tiling.DEBUG) {
-			switch(Tiling.DEBUG_LEVEL) {
-				case 0: logger.setLevel(Level.INFO); break;
-				case 1: logger.setLevel(Level.FINE); break;
-				case 2: logger.setLevel(Level.FINER); break;
-				case 3: logger.setLevel(Level.ALL); break;
-			}
-		} else {
-			logger.setLevel(Level.INFO);
-		}
 	}
 	
 	private static final ExecutorService executorService = Executors.newFixedThreadPool(4);

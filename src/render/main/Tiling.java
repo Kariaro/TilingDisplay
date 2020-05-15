@@ -1,6 +1,7 @@
 package render.main;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
 import java.awt.image.BufferedImage;
@@ -17,6 +18,7 @@ import org.lwjgl.glfw.GLFWFramebufferSizeCallback;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+import org.lwjgl.opengl.GL11;
 
 import tiling.mesh.Texture;
 import tiling.parser.TilingDefault;
@@ -56,13 +58,12 @@ public class Tiling implements Runnable {
 	public static void main(String[] args) {
 		if(args.length > 0) {
 			if(args[0].equals("-debug") || args[0].equals("-d")) {
-				DEBUG = true;
-				DEBUG_LEVEL = 3;
+				TilingUtil.setDebug(true);
+				TilingUtil.setDebugLevel(3);
 				
 				System.setProperty("org.lwjgl.util.Debug", "true");
 			}
 		}
-		
 		
 		try {
 			String protocol = Tiling.class.getResource("Tiling.class").getProtocol();
@@ -70,7 +71,7 @@ public class Tiling implements Runnable {
 				File jar_file = new File(Tiling.class.getProtectionDomain().getCodeSource().getLocation().toURI());
 				
 				if(System.console() == null) {
-					Runtime.getRuntime().exec("cmd.exe /K start cmd.exe /C \"java -Xms256m -jar \"" + jar_file.getAbsolutePath() + "\"\" " + (DEBUG ? "-d &PAUSE":""));
+					Runtime.getRuntime().exec("cmd.exe /K start cmd.exe /C \"java -Xms256m -jar \"" + jar_file.getAbsolutePath() + "\"\" " + (TilingUtil.isDebug() ? "-d &PAUSE":""));
 					System.exit(0);
 				}
 				
@@ -80,10 +81,11 @@ public class Tiling implements Runnable {
 				System.setProperty("java.library.path", "lwjgl/");
 				System.setProperty("org.lwjgl.system.SharedLibraryExtractPath", LWJGL_PATH.getAbsolutePath());
 				
-				Tiling.customTilingFolder = new File("custom_tilings");
-				if(!Tiling.customTilingFolder.exists()) {
-					Tiling.customTilingFolder.mkdir();
+				File custom_tiling = new File("custom_tilings");
+				if(!custom_tiling.exists()) {
+					custom_tiling.mkdir();
 				}
+				TilingUtil.setDefaultPath(custom_tiling);
 				
 				{
 					FileOutputStream stream = new FileOutputStream(new File(EXAMPLES_PATH, "documentation.README"));
@@ -100,7 +102,7 @@ public class Tiling implements Runnable {
 					}
 				}
 			} else {
-				customTilingFolder = new File(Tiling.class.getResource("/patterns/").toURI());
+				TilingUtil.setDefaultPath(new File(Tiling.class.getResource("/patterns/").toURI()));
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
@@ -124,36 +126,27 @@ public class Tiling implements Runnable {
 	public static final String VERSION = "1.0.2";
 	public static final int TARGET_FPS = 120;
 	
-	public static File customTilingFolder;
-	public static boolean DEBUG = false;
-	public static int DEBUG_LEVEL = 0;
-	
-	private int height = (int)(540 * 1.5);
-	private int width = (int)(960 * 1.5);
-	
 	private TilingRender render;
 	private boolean running;
-	private Thread thread;
 	private long window;
 	private int fps;
 	
 	public synchronized void start() {
+		if(running) return;
 		running = true;
-		thread = new Thread(this, "Main Thread");
+		Thread thread = new Thread(this, "Main Thread");
 		thread.start();
-	}
-	
-	public synchronized void stop() {
-		if(!running) return;
-		// TODO: Implement if needed
 	}
 	
 	private void init() throws Exception {
 		if(!glfwInit()) {
 			return;
 		}
+
+		int height = (int)(540 * 1.5);
+		int width = (int)(960);
 		
-		// glfwWindowHint(GLFW_SAMPLES, 4);
+		//glfwWindowHint(GLFW_SAMPLES, 4);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		window = glfwCreateWindow(width, height, "Tiling (Press 'U' Zoom) (Press 'I' UnZoom) (Press 'M' Menu)", NULL, NULL);
@@ -170,9 +163,6 @@ public class Tiling implements Runnable {
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		glfwSetFramebufferSizeCallback(window, new GLFWFramebufferSizeCallback() {
 			public void invoke(long window, int width, int height) {
-				Tiling.this.width = width;
-				Tiling.this.height = height;
-				
 				render.setViewport(width, height);
 			}
 		});
@@ -187,17 +177,10 @@ public class Tiling implements Runnable {
 		}
 		
 		GL.createCapabilities();
+		GL11.glDisable(GL_CULL_FACE);
 		
-		render = new TilingRender(this, window);
+		render = new TilingRender(this, window, width, height);
 		glfwShowWindow(window);
-	}
-	
-	public int getWidth() {
-		return width;
-	}
-	
-	public int getHeight() {
-		return height;
 	}
 	
 	public int getFps() {
@@ -207,11 +190,8 @@ public class Tiling implements Runnable {
 	public void run() {
 		try {
 			init();
-			
-			render.render();
 		} catch(Exception e) {
 			e.printStackTrace();
-			
 			System.exit(0);
 		}
 		
@@ -237,12 +217,8 @@ public class Tiling implements Runnable {
 			}
 			
 			try {
-				//long now = System.nanoTime();
 				render.render();
 				render.update();
-				//long ellipsed = System.nanoTime() - now;
-				//delta_time = ellipsed / 1000000.0f;
-				// System.out.println("test: " + delta_time);
 				frames++;
 			} catch(Exception e) {
 				System.out.println("[FATAL EXCEPTION PREVENTED]");
@@ -251,7 +227,6 @@ public class Tiling implements Runnable {
 			
 			long now = System.currentTimeMillis();
 			if(now - last > 1000) {
-				//System.out.println("fps: " + frames + "/" + TARGET_FPS);
 				fps = frames;
 				
 				frames = 0;
@@ -263,11 +238,10 @@ public class Tiling implements Runnable {
 			}
 		}
 		
-		// TODO: What to do here?
+		glfwDestroyWindow(window);
 		glfwTerminate();
-		TilingUtil.stopEvents();
 		
-		// TODO: Remove
+		TilingUtil.stopEvents();
 		System.exit(0);
 	}
 }

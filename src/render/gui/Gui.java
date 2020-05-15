@@ -19,12 +19,13 @@ public class Gui {
 	private static final Logger LOGGER = Logger.getLogger("TilingGui");
 	
 	private final TilingRender parent;
-	public int height;
-	public int width;
 	
 	private TilingPattern selectedTiling;
 	private GuiFileChooser fileChooser;
 	private Text text;
+	
+	public int height;
+	public int width;
 	
 	public Gui(TilingRender parent) {
 		this.parent = parent;
@@ -74,7 +75,7 @@ public class Gui {
 		if(inside && Mouse.buttons[0]) {
 			Mouse.buttons[0] = false;
 			pressed = true;
-			toggled = !toggled;
+			//toggled = !toggled;
 		}
 		
 		if(toggled) {
@@ -114,7 +115,7 @@ public class Gui {
 	private float smooth_value = 400;
 	
 	public void render() {
-		TilingUtil.setDebugLevel(LOGGER);
+		TilingUtil.applyDebugLevel(LOGGER);
 		
 		if(Input.keys[GLFW.GLFW_KEY_M]) {
 			long now = System.currentTimeMillis() - smooth_time;
@@ -167,6 +168,7 @@ public class Gui {
 			float a = smooth_value;
 			int total_patterns = parent.patterns.size();
 			
+			// TODO: Remove
 			if(pattern_index != -1) {
 				if(Input.keys[GLFW.GLFW_KEY_UP]) {
 					if(!pressing_up) {
@@ -213,7 +215,7 @@ public class Gui {
 			{
 				text.drawText("zoom " + parent.getZoom(), width - a + 4, height - 48, 24);
 				
-				if(drawToggle("[Debug Off]", "[Debug On]", Tiling.DEBUG, true, 24, width - a, height - 24, 4, 0,
+				if(drawToggle("[Debug Off]", "[Debug On]", TilingUtil.isDebug(), true, 24, width - a, height - 24, 4, 0,
 					new Vector4f(0, 0, 0, 0.3f),
 					new Vector4f(1, 1, 1, 0.1f),
 					new Vector4f(0, 0, 0, 0.4f),
@@ -221,7 +223,7 @@ public class Gui {
 					new Vector4f(1, 1, 1, 0.4f),
 					new Vector4f(0.3f, 0.7f, 0.3f, 1)
 					)) {
-					Tiling.DEBUG = !Tiling.DEBUG;
+					TilingUtil.setDebug(!TilingUtil.isDebug());
 				}
 				
 				String[] levels = new String[] {
@@ -231,7 +233,8 @@ public class Gui {
 					"Maximum"
 				};
 				
-				if(drawToggle("[" + levels[Tiling.DEBUG_LEVEL] + "]", Tiling.DEBUG, true, 24, width - a + 147, height - 24, 4, 0,
+				int debugLevel = TilingUtil.getDebugLevel();
+				if(drawToggle("[" + levels[debugLevel] + "]", TilingUtil.isDebug(), true, 24, width - a + 147, height - 24, 4, 0,
 					new Vector4f(0, 0, 0, 0.3f),
 					new Vector4f(0, 0, 0, 0.3f),
 					new Vector4f(0, 0, 0, 0.4f),
@@ -240,9 +243,8 @@ public class Gui {
 					new Vector4f(1, 1, 1, 0.8f)
 					)) {
 					
-					if(Tiling.DEBUG) {
-						Tiling.DEBUG_LEVEL++;
-						if(Tiling.DEBUG_LEVEL > 3) Tiling.DEBUG_LEVEL = 0;
+					if(TilingUtil.isDebug()) {
+						TilingUtil.setDebugLevel((debugLevel + 1) % 4);
 					}
 				}
 			}
@@ -271,7 +273,6 @@ public class Gui {
 				}
 				
 				drawBox(width - a, 32 + i * 32, a, 32);
-				
 				
 				GL11.glColor4f(1, 1, 1, 1.0f);
 				TilingPattern pattern = parent.patterns.get(i);

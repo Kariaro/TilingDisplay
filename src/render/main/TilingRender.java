@@ -38,31 +38,18 @@ public class TilingRender {
 	public List<TilingPattern> patterns;
 	public TilingPattern customTiling;
 	
-	public TilingRender(Tiling parent, long window) {
+	public TilingRender(Tiling parent, long window, int width, int height) {
 		this.parent = parent;
 		this.window = window;
 		
-		height = parent.getHeight();
-		width = parent.getWidth();
-		
 		camera = new Camera();
-		camera.z = 3;
-		
-		this.gui = new Gui(this);
-		gui.height = height;
-		gui.width = width;
-		
-		GL11.glDisable(GL_CULL_FACE);
-		
-		GL11.glLoadIdentity();
-		GL11.glMatrixMode(GL11.GL_PROJECTION_MATRIX);
-		GL11.glOrtho(0, width, height, 0, 1, -1);
-		GL11.glMatrixMode(GL11.GL_MODELVIEW_MATRIX);
+		gui = new Gui(this);
+		setViewport(width, height);
 		
 		try {
 			createBackground();
 			
-			if(Tiling.DEBUG) {
+			if(TilingUtil.isDebug()) {
 				TilingUtil.execute(() -> {
 					customTiling = TilingLoader.loadLocalPattern("/testing/DebugTiling.debug");
 					pattern_index = -1;
@@ -201,12 +188,6 @@ public class TilingRender {
 			}
 		}
 		
-		//for(Vector4f color : colors) {
-		//color.x *= 1.3f;
-		//color.y *= 1.3f;
-		//color.z *= 1.3f;
-		//}
-		
 		float[] v = new float[vertices.size() * 3];
 		float[] c = new float[colors.size() * 4];
 		float[] u = new float[colors.size() * 2];
@@ -232,13 +213,14 @@ public class TilingRender {
 	
 	private boolean pattern_changed = true;
 	private int pattern_index = 0;
+	private int zoom_level = 0;
 	
 	public int getFps() {
 		return parent.getFps();
 	}
 	
-	public int getPatternIndex() {
-		return pattern_index;
+	public void setZoom(int zoom) {
+		this.zoom_level = zoom;
 	}
 	
 	public int getZoom() {
@@ -249,43 +231,25 @@ public class TilingRender {
 		zoom_level = -1;
 	}
 	
-	public void setZoom(int zoom) {
-		this.zoom_level = zoom;
-	}
-	
 	public void setPatternIndex(int index) {
 		pattern_changed = true;
 		pattern_index = index;
+	}
+	
+	public int getPatternIndex() {
+		return pattern_index;
 	}
 	
 	public void update() {
 		TilingUtil.pollEvents();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
-		
-		camera.speed_mod = Math.abs(camera.z) * 10;
 		camera.update();
-		
-		//camera.rx = 0;
-		//camera.rz = 0;
-		//camera.ry = 0;
-		
-		if(camera.z > 5) camera.z = 5;
-		if(camera.z < 0.001) camera.z = 0.001f;
-		if(camera.y > 3) camera.y = 3;
-		if(camera.y < -3) camera.y = -3;
-		if(camera.x > 3) camera.x = 3;
-		if(camera.x < -3) camera.x = -3;
 	}
 	
-	//private Texture texture;
-	private int zoom_level = 0;
 	public void render() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		
-		Matrix4f viewMatrix = camera.getViewMatrix();
-		Matrix4f projectionMatrix = camera.getProjectionMatrix(60, width, height);
-		Matrix4f projectionView = projectionMatrix.mul(viewMatrix, new Matrix4f());
+		Matrix4f projectionView = camera.getProjectionViewMatrix(60, width, height);
 		
 		TilingPattern pattern = null;
 		
@@ -298,9 +262,9 @@ public class TilingRender {
 		}
 		
 		if(pattern != null) {
-			boolean pressed = false;
 			int min_zoom = pattern.getMinimumZoom();
 			int max_zoom = pattern.getMaximumZoom();
+			boolean pressed = false;
 			
 			if(!pattern.isGenerating()) {
 				boolean key_U = Input.pollKey(GLFW_KEY_U);
@@ -331,9 +295,6 @@ public class TilingRender {
 			}
 		}
 		
-		//if(texture == null) {
-			//texture = new Texture(Tiling.class.getResourceAsStream("/texture/Background.png"));
-		//}
 		GL11.glEnable(GL_DEPTH_TEST);
 		shader.bind();
 		shader.setUniform("projectionView", projectionView);
@@ -341,9 +302,7 @@ public class TilingRender {
 		shader.setUniform("hasTexture", false);
 		
 		shader.setUniform("isTiling", false);
-		//texture.bind();
 		background.render();
-		//texture.unbind();
 		
 		if(pattern != null && pattern.hasMesh()) {
 			Matrix4f matrix = new Matrix4f();

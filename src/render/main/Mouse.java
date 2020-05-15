@@ -6,10 +6,9 @@ import org.lwjgl.glfw.GLFWMouseButtonCallbackI;
 import tiling.util.TilingUtil;
 
 public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallbackI {
+	public static final boolean[] buttons = new boolean[256];
 	public static double mouseX;
 	public static double mouseY;
-	
-	public static boolean[] buttons = new boolean[256];
 	
 	private final int type;
 	public Mouse(int type) {
@@ -56,9 +55,9 @@ public class Mouse extends GLFWCursorPosCallback implements GLFWMouseButtonCallb
 	}
 	
 	public static boolean inside(float x, float y, float w, float h) {
-		return !(mouseX < x
-			  || mouseX > x + w
-			  || mouseY < y
+		return !(mouseX <= x
+			  || mouseX >= x + w
+			  || mouseY <= y
 			  || mouseY > y + h);
 	}
 }
